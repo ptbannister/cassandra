@@ -16,28 +16,41 @@
  * limitations under the License.
  */
 
+import org.apache.cassandra.tools.nodetool.stats.StatsKeyspace;
 import org.apache.cassandra.tools.nodetool.stats.StatsTable;
+import org.apache.cassandra.tools.nodetool.stats.StatsTableComparator;
 
+import static org.junit.Assert.assertEquals;
+import org.junit.BeforeClass;
 import org.junit.Test;
-import org.junit.Assert.assertArrayEquals;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class StatsTableComparatorTest {
 
 	/**
 	 * A test vector of StatsKeyspace and StatsTable objects
 	 */
-	private final List<StatsKeyspace> testKeyspaces;
+	private static List<StatsKeyspace> testKeyspaces;
 
 	/**
 	 * A test vector of StatsTable objects
 	 */
-	private final List<StatsTable> testTables;
+	private static List<StatsTable> testTables;
 
 	/**
-	 * Return a StatsTable instance for use as a template for a test vector 
-	 * @returns StatsTable an instance of StatsTable preset with values
+	 * @returns StatsKeyspace an instance of StatsKeyspace preset with values for use in a test vector
 	 */
-	private StatsTable createStatsTableTemplate(String keyspaceName, String tableName) {
+	private static StatsKeyspace createStatsKeyspaceTemplate(String keyspaceName) {
+		return new StatsKeyspace(null, keyspaceName);
+	}
+
+	/**
+	 * @returns StatsTable an instance of StatsTable preset with values for use in a test vector
+	 */
+	private static StatsTable createStatsTableTemplate(String keyspaceName, String tableName) {
 		StatsTable template = new StatsTable();
 		template.keyspaceName = new String(keyspaceName);
 		template.tableName = new String(tableName);
@@ -146,6 +159,18 @@ public class StatsTableComparatorTest {
 		testKeyspaces.add(keyspace1);
 		testKeyspaces.add(keyspace2);
 		testKeyspaces.add(keyspace3);
+		// compute keyspace statistics from relevant table metrics
+		for (int i = 0; i < testKeyspaces.size(); i++) {
+			StatsKeyspace ks = testKeyspaces.get(i);
+			for (StatsTable st : ks.tables) {
+				ks.readCount += st.localReadCount;
+				ks.writeCount += st.localWriteCount;
+				// TODO: totalReadTime
+				// TODO: totalWriteTime
+				ks.pendingFlushes += (long) st.pendingFlushes;
+			}
+			testKeyspaces.set(i, ks);
+		}
 		// populate testTables test vector
 		testTables.add(table1);
 		testTables.add(table2);
