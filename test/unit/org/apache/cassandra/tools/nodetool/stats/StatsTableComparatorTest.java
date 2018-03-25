@@ -16,9 +16,7 @@
  * limitations under the License.
  */
 
-import org.apache.cassandra.tools.nodetool.stats.StatsKeyspace;
-import org.apache.cassandra.tools.nodetool.stats.StatsTable;
-import org.apache.cassandra.tools.nodetool.stats.StatsTableComparator;
+package org.apache.cassandra.tools.nodetool.stats;
 
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
@@ -39,6 +37,22 @@ public class StatsTableComparatorTest {
 	 * A test vector of StatsTable objects
 	 */
 	private static List<StatsTable> testTables;
+
+	/**
+	 * Builds a string of the format "table1 > table2 > ... > tablen-1 > tablen"
+	 * to show the order of StatsTables in a sorted list.
+	 * @returns String a string showing the relative position in the list of its StatsTables
+	 */
+	private String buildSortOrderString(List<StatsTable> sorted) {
+		if (sorted == null)
+			return null;
+		if (sorted.size() == 0)
+			return "";
+		String names = sorted.get(0).tableName;
+		for (int i = 1; i < sorted.size(); i++)
+			names += " > " + sorted.get(i).tableName;
+		return names;	
+	}
 
 	/**
 	 * @returns StatsKeyspace an instance of StatsKeyspace preset with values for use in a test vector
@@ -101,20 +115,20 @@ public class StatsTableComparatorTest {
 		StatsTable table4 = createStatsTableTemplate("keyspace2", "table4");
 		StatsTable table5 = createStatsTableTemplate("keyspace2", "table5");
 		StatsTable table6 = createStatsTableTemplate("keyspace3", "table6");
-		// reads: 1 > 2 > 3 > 4 > 5 > 6
-		table1.localReadCount = 5L;
-		table2.localReadCount = 4L;
-		table3.localReadCount = 3L;
-		table4.localReadCount = 2L;
-		table5.localReadCount = 1L;
-		table6.localReadCount = 0L;
-		// writes: 6 > 5 > 4 > 3 > 2 > 1
+		// reads: 6 > 5 > 4 > 3 > 2 > 1
 		table1.localReadCount = 0L;
 		table2.localReadCount = 1L;
 		table3.localReadCount = 2L;
 		table4.localReadCount = 3L;
 		table5.localReadCount = 4L;
 		table6.localReadCount = 5L;
+		// writes: 1 > 2 > 3 > 4 > 5 > 6
+		table1.localWriteCount = 5L;
+		table2.localWriteCount = 4L;
+		table3.localWriteCount = 3L;
+		table4.localWriteCount = 2L;
+		table5.localWriteCount = 1L;
+		table6.localWriteCount = 0L;
 		// read latency: 3 > 2 > 1 > 6 > 5 > 4
 		table1.localReadLatencyMs = 2D;
 		table2.localReadLatencyMs = 3D;
@@ -123,9 +137,9 @@ public class StatsTableComparatorTest {
 		table5.localReadLatencyMs = 0D;
 		table6.localReadLatencyMs = 1D;
 		// write latency: 4 > 5 > 6 > 1 > 2 > 3
-		table1.localWriteLatencyMs = Double.NaN;
+		table1.localWriteLatencyMs = 0.05D;
 		table2.localWriteLatencyMs = 0D;
-		table3.localWriteLatencyMs = 0.05D;
+		table3.localWriteLatencyMs = Double.NaN;
 		table4.localWriteLatencyMs = 2D;
 		table5.localWriteLatencyMs = 1D;
 		table6.localWriteLatencyMs = 0.5D;
@@ -137,12 +151,12 @@ public class StatsTableComparatorTest {
 		table5.spaceUsedTotal = "64";
 		table6.spaceUsedTotal = "0";
 		// memtable data size: 6 > 5 > 4 > 3 > 2 > 1
-		table1.spaceUsedTotal = "0";
-		table2.spaceUsedTotal = "900";
-		table3.spaceUsedTotal = "1999";
-		table4.spaceUsedTotal = "3000";
-		table5.spaceUsedTotal = "20000";
-		table6.spaceUsedTotal = "1000000";
+		table1.memtableDataSize = "0";
+		table2.memtableDataSize = "900";
+		table3.memtableDataSize = "1999";
+		table4.memtableDataSize = "3000";
+		table5.memtableDataSize = "20000";
+		table6.memtableDataSize = "1000000";
 		// create test keyspaces from templates
 		testKeyspaces = new ArrayList<StatsKeyspace>();
 		StatsKeyspace keyspace1 = createStatsKeyspaceTemplate("keyspace1");
@@ -172,6 +186,7 @@ public class StatsTableComparatorTest {
 			testKeyspaces.set(i, ks);
 		}
 		// populate testTables test vector
+		testTables = new ArrayList<StatsTable>();
 		testTables.add(table1);
 		testTables.add(table2);
 		testTables.add(table3);
@@ -182,60 +197,27 @@ public class StatsTableComparatorTest {
 
 	@Test
 	public void testCompare() throws Exception {
-		// reads: 1 > 2 > 3 > 4 > 5 > 6
+		// reads: 6 > 5 > 4 > 3 > 2 > 1
 		StatsTableComparator readsComparator = new StatsTableComparator("reads");
 		Collections.sort(testTables, readsComparator);
-		assertEquals(testTables.get(0).tableName, "table1", "StatsTableComparator failed to sort by reads");
-		assertEquals(testTables.get(1).tableName, "table2", "StatsTableComparator failed to sort by reads");
-		assertEquals(testTables.get(2).tableName, "table3", "StatsTableComparator failed to sort by reads");
-		assertEquals(testTables.get(3).tableName, "table4", "StatsTableComparator failed to sort by reads");
-		assertEquals(testTables.get(4).tableName, "table5", "StatsTableComparator failed to sort by reads");
-		assertEquals(testTables.get(5).tableName, "table6", "StatsTableComparator failed to sort by reads");
-		// writes: 6 > 5 > 4 > 3 > 2 > 1
+		assertEquals("StatsTableComparator failed to sort by reads", "table6 > table5 > table4 > table3 > table2 > table1", buildSortOrderString(testTables));
+		// writes: 1 > 2 > 3 > 4 > 5 > 6
 		StatsTableComparator writesComparator = new StatsTableComparator("writes");
 		Collections.sort(testTables, writesComparator);
-		assertEquals(testTables.get(0).tableName, "table6", "StatsTableComparator failed to sort by writes");
-		assertEquals(testTables.get(1).tableName, "table5", "StatsTableComparator failed to sort by writes");
-		assertEquals(testTables.get(2).tableName, "table4", "StatsTableComparator failed to sort by writes");
-		assertEquals(testTables.get(3).tableName, "table3", "StatsTableComparator failed to sort by writes");
-		assertEquals(testTables.get(4).tableName, "table2", "StatsTableComparator failed to sort by writes");
-		assertEquals(testTables.get(5).tableName, "table1", "StatsTableComparator failed to sort by writes");
+		assertEquals("StatsTableComparator failed to sort by writes", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));
 		// read latency: 3 > 2 > 1 > 6 > 5 > 4
 		StatsTableComparator readLatencyComparator = new StatsTableComparator("readLatency");
 		Collections.sort(testTables, readLatencyComparator);
-		assertEquals(testTables.get(0).tableName, "table3", "StatsTableComparator failed to sort by readLatency");
-		assertEquals(testTables.get(1).tableName, "table2", "StatsTableComparator failed to sort by readLatency");
-		assertEquals(testTables.get(2).tableName, "table1", "StatsTableComparator failed to sort by readLatency");
-		assertEquals(testTables.get(3).tableName, "table6", "StatsTableComparator failed to sort by readLatency");
-		assertEquals(testTables.get(4).tableName, "table5", "StatsTableComparator failed to sort by readLatency");
-		assertEquals(testTables.get(5).tableName, "table4", "StatsTableComparator failed to sort by readLatency");
+		assertEquals("StatsTableComparator failed to sort by readLatency", "table3 > table2 > table1 > table6 > table5 > table4", buildSortOrderString(testTables));
 		// write latency: 4 > 5 > 6 > 1 > 2 > 3
-		StatsTableComparator writeLatencyComparator = new StatsTableComparator("writeLatency");
-		Collections.sort(testTables, writeLatencyComparator);
-		assertEquals(testTables.get(0).tableName, "table3", "StatsTableComparator failed to sort by writeLatency");
-		assertEquals(testTables.get(1).tableName, "table2", "StatsTableComparator failed to sort by writeLatency");
-		assertEquals(testTables.get(2).tableName, "table1", "StatsTableComparator failed to sort by writeLatency");
-		assertEquals(testTables.get(3).tableName, "table6", "StatsTableComparator failed to sort by writeLatency");
-		assertEquals(testTables.get(4).tableName, "table5", "StatsTableComparator failed to sort by writeLatency");
-		assertEquals(testTables.get(5).tableName, "table4", "StatsTableComparator failed to sort by writeLatency");
+		Collections.sort(testTables, new StatsTableComparator("writeLatency"));
+		assertEquals("StatsTableComparator failed to sort by writeLatency", "table4 > table5 > table6 > table1 > table2 > table3", buildSortOrderString(testTables));
 		// space used total: 1 > 2 > 3 > 4 > 5 > 6
-		StatsTableComparator spaceUsedTotalComparator = new StatsTableComparator("spaceUsedTotal");
-		Collections.sort(testTables, spaceUsedTotalComparator);
-		assertEquals(testTables.get(0).tableName, "table1", "StatsTableComparator failed to sort by spaceUsedTotal");
-		assertEquals(testTables.get(1).tableName, "table2", "StatsTableComparator failed to sort by spaceUsedTotal");
-		assertEquals(testTables.get(2).tableName, "table3", "StatsTableComparator failed to sort by spaceUsedTotal");
-		assertEquals(testTables.get(3).tableName, "table4", "StatsTableComparator failed to sort by spaceUsedTotal");
-		assertEquals(testTables.get(4).tableName, "table5", "StatsTableComparator failed to sort by spaceUsedTotal");
-		assertEquals(testTables.get(5).tableName, "table6", "StatsTableComparator failed to sort by spaceUsedTotal");
+		Collections.sort(testTables, new StatsTableComparator("spaceUsedTotal"));
+		assertEquals("StatsTableComparator failed to sort by spaceUsedTotal", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));
 		// memtable data size: 6 > 5 > 4 > 3 > 2 > 1
-		StatsTableComparator memtableDataSizeComparator = new StatsTableComparator("memtableDataSize");
-		Collections.sort(testTables, memtableDataSizeComparator);
-		assertEquals(testTables.get(0).tableName, "table6", "StatsTableComparator failed to sort by memtableDataSize");
-		assertEquals(testTables.get(1).tableName, "table5", "StatsTableComparator failed to sort by memtableDataSize");
-		assertEquals(testTables.get(2).tableName, "table4", "StatsTableComparator failed to sort by memtableDataSize");
-		assertEquals(testTables.get(3).tableName, "table3", "StatsTableComparator failed to sort by memtableDataSize");
-		assertEquals(testTables.get(4).tableName, "table2", "StatsTableComparator failed to sort by memtableDataSize");
-		assertEquals(testTables.get(5).tableName, "table1", "StatsTableComparator failed to sort by memtableDataSize");
+		Collections.sort(testTables, new StatsTableComparator("memtableDataSize"));
+		assertEquals("StatsTableComparator failed to sort by memtableDataSize", "table6 > table5 > table4 > table3 > table2 > table1", buildSortOrderString(testTables));
 	}
 
 }

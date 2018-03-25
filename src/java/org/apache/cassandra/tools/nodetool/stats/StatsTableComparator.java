@@ -53,7 +53,7 @@ public class StatsTableComparator implements Comparator {
 		}
 		StatsTable stx = (StatsTable) x;
 		StatsTable sty = (StatsTable) y;
-		int sign = ascending ? -1 : 1;
+		int sign = ascending ? 1 : -1;
 		if (sortKey.equals("memtableDataSize")) {
 			return sign * Long.valueOf(stx.memtableDataSize).compareTo(Long.valueOf(sty.memtableDataSize));
 		}
@@ -61,7 +61,15 @@ public class StatsTableComparator implements Comparator {
 			return sign * Long.valueOf(stx.localReadCount).compareTo(Long.valueOf(sty.localReadCount));
 		}
 		else if (sortKey.equals("readLatency")) {
-			return sign * Double.valueOf(stx.localReadLatencyMs).compareTo(Double.valueOf(sty.localReadLatencyMs));
+			// Double.NaN means readLatency of zero, rather than its usual meaning of infinity
+			if (Double.isNaN(stx.localReadLatencyMs) && !Double.isNaN(sty.localReadLatencyMs))
+				return sign * -1;
+			else if (!Double.isNaN(stx.localReadLatencyMs) && Double.isNaN(sty.localReadLatencyMs))
+				return sign * 1;
+			else if (Double.isNaN(stx.localReadLatencyMs) && Double.isNaN(sty.localReadLatencyMs))
+				return 0;
+			else
+				return sign * Double.valueOf(stx.localReadLatencyMs).compareTo(Double.valueOf(sty.localReadLatencyMs));
 		}
 		else if (sortKey.equals("spaceUsedTotal")) {
 			return sign * Long.valueOf(stx.spaceUsedTotal).compareTo(Long.valueOf(sty.spaceUsedTotal));
@@ -70,7 +78,15 @@ public class StatsTableComparator implements Comparator {
 			return sign * Long.valueOf(stx.localWriteCount).compareTo(Long.valueOf(sty.localWriteCount));
 		}
 		else if (sortKey.equals("writeLatency")) {
-			return sign * Double.valueOf(stx.localWriteLatencyMs).compareTo(Double.valueOf(sty.localWriteLatencyMs));
+			// Double.NaN means writeLatency of zero, rather than its usual meaning of infinity
+			if (Double.isNaN(stx.localWriteLatencyMs) && !Double.isNaN(sty.localWriteLatencyMs))
+				return sign * -1;
+			else if (!Double.isNaN(stx.localWriteLatencyMs) && Double.isNaN(sty.localWriteLatencyMs))
+				return sign * 1;
+			else if (Double.isNaN(stx.localWriteLatencyMs) && Double.isNaN(sty.localWriteLatencyMs))
+				return 0;
+			else
+				return sign * Double.valueOf(stx.localWriteLatencyMs).compareTo(Double.valueOf(sty.localWriteLatencyMs));
 		}
 		else {
 			// if a valid sortKey wasn't specified, sort alphabetically by keyspace, then by table
