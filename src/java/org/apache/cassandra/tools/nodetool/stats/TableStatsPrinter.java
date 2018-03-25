@@ -38,6 +38,7 @@ public class TableStatsPrinter
         }
     }
 
+    // TODO for CASSANDRA-13889: overload or rewrite print to support top k tables and sorting
     private static class DefaultPrinter implements StatsPrinter<TableStatsHolder>
     {
         @Override
@@ -61,7 +62,8 @@ public class TableStatsPrinter
                 List<StatsTable> tables = keyspace.tables;
                 for (StatsTable table : tables)
                 {
-                    out.println("\t\tTable" + (table.isIndex ? " (index): " + table.name : ": ") + table.name);
+                    // TODO for CASSANDRA-13889: refactor this into a new printTable method
+                    out.println("\t\tTable" + (table.isIndex ? " (index): " + table.tableName : ": ") + table.tableName);
                     out.println("\t\tSSTable count: " + table.sstableCount);
                     if (table.isLeveledSstable)
                         out.println("\t\tSSTables in each level: [" + String.join(", ",

@@ -45,6 +45,14 @@ public class TableStats extends NodeToolCmd
             description = "Output format (json, yaml)")
     private String outputFormat = "";
 
+    /**
+     * TODO for CASSANDRA-13889: add option for sort key
+     */
+
+    /**
+     * TODO for CASSANDRA-13889: add option for top K tables, requiring a sort key
+     */
+
     @Override
     public void execute(NodeProbe probe)
     {
@@ -56,6 +64,7 @@ public class TableStats extends NodeToolCmd
         StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames);
         // print out the keyspace and table statistics
         StatsPrinter printer = TableStatsPrinter.from(outputFormat);
+        // TODO for CASSANDRA-13889: pass sorting and top K tables options to printer.print
         printer.print(holder, System.out);
     }
 

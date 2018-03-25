@@ -111,7 +111,7 @@ public class TableStatsHolder implements StatsHolder
                             table.maximumTombstonesPerSliceLastFiveMinutes);
                 mpTable.put("dropped_mutations", table.droppedMutations);
 
-                mpTables.put(table.name, mpTable);
+                mpTables.put(table.tableName, mpTable);
             }
             mpKeyspace.put("tables", mpTables);
             mpRet.put(keyspace.name, mpKeyspace);
@@ -165,7 +165,8 @@ public class TableStatsHolder implements StatsHolder
             {
                 String tableName = table.getTableName();
                 StatsTable statsTable = new StatsTable();
-                statsTable.name = tableName;
+				statsTable.keyspaceName = keyspaceName;
+                statsTable.tableName = tableName;
                 statsTable.isIndex = tableName.contains(".");
                 statsTable.sstableCount = probe.getColumnFamilyMetric(keyspaceName, tableName, "LiveSSTableCount");
                 int[] leveledSStables = table.getSSTableCountPerLevel();

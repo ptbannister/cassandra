@@ -19,11 +19,13 @@
 package org.apache.cassandra.tools.nodetool.stats;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class StatsTable
 {
-    public String name;
+    public String keyspaceName;
+    public String tableName;
     public boolean isIndex;
     public boolean isLeveledSstable = false;
     public Object sstableCount;
@@ -66,4 +68,55 @@ public class StatsTable
     public long maximumTombstonesPerSliceLastFiveMinutes;
     public String droppedMutations;
     public List<String> sstablesInEachLevel = new ArrayList<>();
+}
+
+/**
+ * Comparator to sort StatsTables by a named statistic.
+ */
+protected class StatsTableComparator implements Comparator {
+
+	// TODO: docstring
+	private String sortKey;
+
+	// TODO: docstring
+	private boolean ascending;
+
+	public StatsTableComparator(String sortKey) {
+		this.sortKey = sortKey;
+		this.ascending = false;
+	}
+	
+	public StatsTableComparator(String sortKey, boolean ascending) {
+		this.sortKey = sortKey;
+		this.ascending = ascending;
+	}
+
+	/**
+	 * Compare StatsTable instances based on this instance's sortKey.
+	 */
+	public int compare(StatsTable x, StatsTable y) {
+		int sign = ascending ? -1 : 1;
+		if (sortKey.equals("memtableDataSize")) {
+			return sign * Long.parseString(x.memtableDataSize).compareTo(Long.parseString(y.memtableDataSize));
+		}
+		else if (sortKey.equals("reads")) {
+			return sign * Long(x.localReadCount).compareTo(Long(y.localReadCount));
+		}
+		else if (sortKey.equals("readLatency")) {
+			return sign * Double(x.localReadLatencyMs).compareTo(Double(y.localReadLatencyMs));
+		}
+		else if (sortKey.equals("spaceUsedTotal")) {
+			return sign * Long.parseString(x.spaceUsedTotal).compareTo(Long.parseString(y.spaceUsedTotal));
+		}
+		else if (sortKey.equals("writes")) {
+			return sign * Long(x.localWriteCount).compareTo(Long(y.localWriteCount));
+		}
+		else if (sortKey.equals("writeLatency")) {
+			return sign * Double(x.localWriteLatencyMs).compareTo(Double(y.localWriteLatencyMs));
+		}
+		else {
+			// if a valid sortKey wasn't specified, sort alphabetically by keyspace, then by table
+			return sign * (x.keyspaceName + "." + x.tableName).compareTo(y.keyspaceName + "." + y.tableName);
+		}
+	}
 }
