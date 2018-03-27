@@ -68,8 +68,8 @@ public class TableStatsPrinter
             }
         }
 
-       private void printStatsTable(StatsTable table, String tableDisplayName, String indent, PrintStream out)
-       {
+        private void printStatsTable(StatsTable table, String tableDisplayName, String indent, PrintStream out)
+        {
             out.println(indent + "Table" + (table.isIndex ? " (index): " + table.tableName : ": ") + tableDisplayName);
             out.println(indent + "SSTable count: " + table.sstableCount);
             if (table.isLeveledSstable)
@@ -117,11 +117,11 @@ public class TableStatsPrinter
             out.println(indent + "Maximum tombstones per slice (last five minutes): " + table.maximumTombstonesPerSliceLastFiveMinutes);
             out.println(indent + "Dropped Mutations: " + table.droppedMutations);
             out.println("");
+            out.println("----------------");
         }
-        out.println("----------------");
     }
 
-    private static class SortedDefaultPrinter extends DefaultStatsPrinter
+    private static class SortedDefaultPrinter extends DefaultPrinter
     {
         @Override
         public void print(TableStatsHolder data, PrintStream out)

@@ -52,7 +52,7 @@ public class TableStats extends NodeToolCmd
 
     @Option(title = "top",
             name = {"-t", "--top"},
-            description = "Specify an integer K and show only the top K tables for the sort key")
+            description = "Show only the top K tables for the sort key (specify the number K of tables to be shown")
     private int top = null;
 
     @Override
