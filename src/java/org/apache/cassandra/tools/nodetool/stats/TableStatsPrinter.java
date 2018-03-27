@@ -117,7 +117,6 @@ public class TableStatsPrinter
             out.println(indent + "Maximum tombstones per slice (last five minutes): " + table.maximumTombstonesPerSliceLastFiveMinutes);
             out.println(indent + "Dropped Mutations: " + table.droppedMutations);
             out.println("");
-            out.println("----------------");
         }
     }
 
