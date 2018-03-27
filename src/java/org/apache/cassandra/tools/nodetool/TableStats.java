@@ -18,9 +18,9 @@
 package org.apache.cassandra.tools.nodetool;
 
 import java.util.*;
-import io.airlift.airline.Arguments;
-import io.airlift.airline.Command;
-import io.airlift.airline.Option;
+import io.airlift.command.Arguments;
+import io.airlift.command.Command;
+import io.airlift.command.Option;
 
 import org.apache.cassandra.tools.NodeProbe;
 import org.apache.cassandra.tools.NodeTool.NodeToolCmd;
@@ -45,13 +45,15 @@ public class TableStats extends NodeToolCmd
             description = "Output format (json, yaml)")
     private String outputFormat = "";
 
-    /**
-     * TODO for CASSANDRA-13889: add option for sort key
-     */
+    @Option(title = "sort_key",
+            name = {"-s", "--sort"},
+            description = "Sorting key (readLatency, reads, writeLatency, writes, etc)")
+    private String sortKey = "";
 
-    /**
-     * TODO for CASSANDRA-13889: add option for top K tables, requiring a sort key
-     */
+    @Option(title = "top",
+            name = {"-t", "--top"},
+            description = "Specify an integer K and show only the top K tables for the sort key")
+    private int top = null;
 
     @Override
     public void execute(NodeProbe probe)
@@ -61,10 +63,16 @@ public class TableStats extends NodeToolCmd
             throw new IllegalArgumentException("arguments for -F are json,yaml only.");
         }
 
-        StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames);
+        if (!top.isEmpty() && sort.isEmpty())
+        {
+            throw new IllegalArgumentException("cannot filter top K tables without specifying a sort key.");
+        }
+
+        // TODO: check specified sort key
+
+        StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames, sort_key, top);
         // print out the keyspace and table statistics
-        StatsPrinter printer = TableStatsPrinter.from(outputFormat);
-        // TODO for CASSANDRA-13889: pass sorting and top K tables options to printer.print
+        StatsPrinter printer = TableStatsPrinter.from(outputFormat, !sort.isEmpty());
         printer.print(holder, System.out);
     }
 
