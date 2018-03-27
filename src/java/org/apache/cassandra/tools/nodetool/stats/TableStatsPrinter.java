@@ -131,7 +131,7 @@ public class TableStatsPrinter
             List<StatsTable> tables = data.getSortedFilteredTables();
             for (StatsTable table : tables)
             {
-                printStatsTable(table, table.keyspaceName + "." + table.tableName, "\t", out);
+                super.printStatsTable(table, table.keyspaceName + "." + table.tableName, "\t", out);
             }
             out.println("----------------");
         }

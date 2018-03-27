@@ -78,7 +78,7 @@ public class TableStatsHolder implements StatsHolder
             for (StatsTable table : tables)
             {
                 Map<String, Object> mpTable = convertStatsTableToMap(table);
-                mpTables.put(table.name, mpTable);
+                mpTables.put(table.tableName, mpTable);
             }
             mpKeyspace.put("tables", mpTables);
             mpRet.put(keyspace.name, mpKeyspace);
@@ -97,7 +97,7 @@ public class TableStatsHolder implements StatsHolder
         List<StatsTable> sortedFilteredTables = getSortedFilteredTables();
         for (StatsTable table : sortedFilteredTables)
         {
-            String tableDisplayName = table.KeyspaceName + "." + table.tableName;
+            String tableDisplayName = table.keyspaceName + "." + table.tableName;
             Map<String, Object> mpTable = convertStatsTableToMap(table);
             mpRet.put(tableDisplayName, mpTable);
         }
@@ -197,7 +197,8 @@ public class TableStatsHolder implements StatsHolder
             {
                 String tableName = table.getTableName();
                 StatsTable statsTable = new StatsTable();
-                statsTable.name = tableName;
+                statsTable.keyspaceName = keyspaceName;
+                statsTable.tableName = tableName;
                 statsTable.isIndex = tableName.contains(".");
                 statsTable.sstableCount = probe.getColumnFamilyMetric(keyspaceName, tableName, "LiveSSTableCount");
                 int[] leveledSStables = table.getSSTableCountPerLevel();
@@ -331,8 +332,8 @@ public class TableStatsHolder implements StatsHolder
         for (StatsKeyspace keyspace : keyspaces)
             tables.addAll(keyspace.tables);
         Collections.sort(tables, new StatsTableComparator(sortKey));
-        if (top != null)
-            tables.removeRange(top-1, tables.size());
+        if (top > 0)
+            tables = tables.subList(0, top);
         return tables;
     }
 

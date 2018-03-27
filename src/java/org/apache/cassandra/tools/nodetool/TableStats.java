@@ -53,7 +53,7 @@ public class TableStats extends NodeToolCmd
     @Option(title = "top",
             name = {"-t", "--top"},
             description = "Show only the top K tables for the sort key (specify the number K of tables to be shown")
-    private int top = null;
+    private int top = 0;
 
     @Override
     public void execute(NodeProbe probe)
@@ -63,16 +63,16 @@ public class TableStats extends NodeToolCmd
             throw new IllegalArgumentException("arguments for -F are json,yaml only.");
         }
 
-        if (!top.isEmpty() && sort.isEmpty())
+        if (top > 0 && sortKey.isEmpty())
         {
             throw new IllegalArgumentException("cannot filter top K tables without specifying a sort key.");
         }
 
         // TODO: check specified sort key
 
-        StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames, sort_key, top);
+        StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames, sortKey, top);
         // print out the keyspace and table statistics
-        StatsPrinter printer = TableStatsPrinter.from(outputFormat, !sort.isEmpty());
+        StatsPrinter printer = TableStatsPrinter.from(outputFormat, !sortKey.isEmpty());
         printer.print(holder, System.out);
     }
 
