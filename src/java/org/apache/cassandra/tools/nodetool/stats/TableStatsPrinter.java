@@ -68,7 +68,7 @@ public class TableStatsPrinter
             }
         }
 
-        private void printStatsTable(StatsTable table, String tableDisplayName, String indent, PrintStream out)
+        protected void printStatsTable(StatsTable table, String tableDisplayName, String indent, PrintStream out)
         {
             out.println(indent + "Table" + (table.isIndex ? " (index): " + table.tableName : ": ") + tableDisplayName);
             out.println(indent + "SSTable count: " + table.sstableCount);
@@ -130,7 +130,7 @@ public class TableStatsPrinter
             List<StatsTable> tables = data.getSortedFilteredTables();
             for (StatsTable table : tables)
             {
-                super.printStatsTable(table, table.keyspaceName + "." + table.tableName, "\t", out);
+                printStatsTable(table, table.keyspaceName + "." + table.tableName, "\t", out);
             }
             out.println("----------------");
         }
