@@ -18,17 +18,20 @@
 
 package org.apache.cassandra.tools.nodetool.stats;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import org.apache.cassandra.tools.NodeProbe;
 
-public class StatsTablePrinterTest extends StatsTableTestBase {
-
-	public PrintStream out;
+public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable1Output =
 		"\t\tTable: table1\n" +
@@ -257,7 +260,7 @@ public class StatsTablePrinterTest extends StatsTableTestBase {
 		expectedDefaultPrinterTable4Output +
 		expectedDefaultPrinterTable5Output +
 		"----------------\n" +
-		"Keyspace : keyspace2\n" +
+		"Keyspace : keyspace3\n" +
 		"\tRead Count: 5\n" +
 		"\tRead Latency: NaN ms\n" +
 		"\tWrite Count: 0\n" +
@@ -267,12 +270,11 @@ public class StatsTablePrinterTest extends StatsTableTestBase {
 
 	@Test
 	public void testDefaultPrinter() throws Exception {
-		StatsHolder holder = new TestTableStatsHolder(sortKey, top);
-		StatsPrinter printer = TableStatsPrinter.from("", "");
-		out = new ByteArrayOutputStream();
-		printer.print(holder, out);
-		assertEquals("StatsTablePrinter.DefaultPrinter does not print test vector as expected", expectedDefaultPrinterOutput, out);
-		assertEquals(out);
+		StatsHolder holder = new TestTableStatsHolder(testKeyspaces, "", 0);
+		StatsPrinter printer = TableStatsPrinter.from("", false);
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		printer.print(holder, new PrintStream(byteStream));
+		assertEquals("StatsTablePrinter.DefaultPrinter does not print test vector as expected", expectedDefaultPrinterOutput, byteStream.toString());
 	}
 
 	@Test
@@ -283,13 +285,18 @@ public class StatsTablePrinterTest extends StatsTableTestBase {
 	/**
 	 * A toy version of TableStatsHolder to hold a test vector instead of gathering stats from a live cluster.
 	 */
-	public static class TestTableStatsHolder extends TableStatsHolder {
-        
-		public TestTableStatsHolder(String sortKey, int top) {
-			this.keyspaces = testKeyspaces;
-			this.sortKey = sortKey;
-			this.top = top;
-		}
+	private static class TestTableStatsHolder extends TableStatsHolder {
+
+            public TestTableStatsHolder(List<StatsKeyspace> testKeyspaces, String sortKey, int top) {
+                super(null, false, false, new ArrayList<>(), sortKey, top);
+                this.keyspaces.clear();
+                this.keyspaces.addAll(testKeyspaces);
+            }
+
+            @Override
+            protected boolean isTestTableStatsHolder() {
+                return true;
+            }
 	}
 
 }

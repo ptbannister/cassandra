@@ -39,8 +39,15 @@ public class TableStatsHolder implements StatsHolder
     public TableStatsHolder(NodeProbe probe, boolean humanReadable, boolean ignore, List<String> tableNames, String sortKey, int top)
     {
         this.keyspaces = new ArrayList<>();
-        this.numberOfTables = probe.getNumberOfTables();
-        this.initializeKeyspaces(probe, humanReadable, ignore, tableNames);
+        if (!this.isTestTableStatsHolder())
+        {
+            this.numberOfTables = probe.getNumberOfTables();
+            this.initializeKeyspaces(probe, humanReadable, ignore, tableNames);
+        }
+        else
+        {
+            this.numberOfTables = 0;
+        }
         this.sortKey = sortKey;
         this.top = top;
     }
@@ -335,6 +342,10 @@ public class TableStatsHolder implements StatsHolder
         if (top > 0)
             tables = tables.subList(0, top);
         return tables;
+    }
+
+    protected boolean isTestTableStatsHolder() {
+        return false;
     }
 
     /**

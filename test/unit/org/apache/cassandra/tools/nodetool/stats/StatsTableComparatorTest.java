@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class StatsTableComparatorTest extends StatsTableTestBase {
+public class StatsTableComparatorTest extends TableStatsTestBase {
 
 	/**
 	 * Builds a string of the format "table1 > table2 > ... > tablen-1 > tablen"

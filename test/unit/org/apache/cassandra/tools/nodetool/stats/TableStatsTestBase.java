@@ -28,7 +28,7 @@ import java.util.List;
 /**
  * Create a test vector for unit testing of TableStats features.
  */
-public class StatsTableTestBase {
+public class TableStatsTestBase {
 
 	/**
 	 * A test vector of StatsKeyspace and StatsTable objects
