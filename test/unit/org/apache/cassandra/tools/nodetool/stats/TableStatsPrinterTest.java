@@ -34,183 +34,183 @@ import org.apache.cassandra.tools.NodeProbe;
 public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable1Output =
-		"\t\tTable: %s\n" +
-		"\t\tSSTable count: 0\n" +
-		"\t\tSpace used (live): 0\n" +
-		"\t\tSpace used (total): 9001\n" +
-		"\t\tSpace used by snapshots (total): 0\n" +
-		"\t\tSSTable Compression Ratio: -1.0\n" +
-		"\t\tNumber of partitions (estimate): 0\n" +
-		"\t\tMemtable cell count: 0\n" +
-		"\t\tMemtable data size: 0\n" +
-		"\t\tMemtable switch count: 0\n" +
-		"\t\tLocal read count: 0\n" +
-		"\t\tLocal read latency: 2.000 ms\n" +
-		"\t\tLocal write count: 5\n" +
-		"\t\tLocal write latency: 0.050 ms\n" +
-		"\t\tPending flushes: 0\n" +
-		"\t\tPercent repaired: 100.0\n" +
-		"\t\tBloom filter false positives: 0\n" +
-		"\t\tBloom filter false ratio: 0.00000\n" +
-		"\t\tBloom filter space used: 0\n" +
-		"\t\tCompacted partition minimum bytes: 0\n" +
-		"\t\tCompacted partition maximum bytes: 0\n" +
-		"\t\tCompacted partition mean bytes: 0\n" +
-		"\t\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\t\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\t\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\t\tMaximum tombstones per slice (last five minutes): 0\n" +
-		"\t\tDropped Mutations: 0\n" +
+		"\tTable: %s\n" +
+		"\tSSTable count: 0\n" +
+		"\tSpace used (live): 0\n" +
+		"\tSpace used (total): 9001\n" +
+		"\tSpace used by snapshots (total): 0\n" +
+		"\tSSTable Compression Ratio: -1.0\n" +
+		"\tNumber of partitions (estimate): 0\n" +
+		"\tMemtable cell count: 0\n" +
+		"\tMemtable data size: 0\n" +
+		"\tMemtable switch count: 0\n" +
+		"\tLocal read count: 0\n" +
+		"\tLocal read latency: 2.000 ms\n" +
+		"\tLocal write count: 5\n" +
+		"\tLocal write latency: 0.050 ms\n" +
+		"\tPending flushes: 0\n" +
+		"\tPercent repaired: 100.0\n" +
+		"\tBloom filter false positives: 0\n" +
+		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter space used: 0\n" +
+		"\tCompacted partition minimum bytes: 0\n" +
+		"\tCompacted partition maximum bytes: 0\n" +
+		"\tCompacted partition mean bytes: 0\n" +
+		"\tAverage live cells per slice (last five minutes): NaN\n" +
+		"\tMaximum live cells per slice (last five minutes): 0\n" +
+		"\tAverage tombstones per slice (last five minutes): NaN\n" +
+		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tDropped Mutations: 0\n" +
 		"\n";
 
 	public static final String expectedDefaultPrinterTable2Output =
-		"\t\tTable: %s\n" +
-		"\t\tSSTable count: 0\n" +
-		"\t\tSpace used (live): 0\n" +
-		"\t\tSpace used (total): 1024\n" +
-		"\t\tSpace used by snapshots (total): 0\n" +
-		"\t\tSSTable Compression Ratio: -1.0\n" +
-		"\t\tNumber of partitions (estimate): 0\n" +
-		"\t\tMemtable cell count: 0\n" +
-		"\t\tMemtable data size: 900\n" +
-		"\t\tMemtable switch count: 0\n" +
-		"\t\tLocal read count: 1\n" +
-		"\t\tLocal read latency: 3.000 ms\n" +
-		"\t\tLocal write count: 4\n" +
-		"\t\tLocal write latency: 0.000 ms\n" +
-		"\t\tPending flushes: 0\n" +
-		"\t\tPercent repaired: 100.0\n" +
-		"\t\tBloom filter false positives: 0\n" +
-		"\t\tBloom filter false ratio: 0.00000\n" +
-		"\t\tBloom filter space used: 0\n" +
-		"\t\tCompacted partition minimum bytes: 0\n" +
-		"\t\tCompacted partition maximum bytes: 0\n" +
-		"\t\tCompacted partition mean bytes: 0\n" +
-		"\t\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\t\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\t\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\t\tMaximum tombstones per slice (last five minutes): 0\n" +
-		"\t\tDropped Mutations: 0\n" +
+		"\tTable: %s\n" +
+		"\tSSTable count: 0\n" +
+		"\tSpace used (live): 0\n" +
+		"\tSpace used (total): 1024\n" +
+		"\tSpace used by snapshots (total): 0\n" +
+		"\tSSTable Compression Ratio: -1.0\n" +
+		"\tNumber of partitions (estimate): 0\n" +
+		"\tMemtable cell count: 0\n" +
+		"\tMemtable data size: 900\n" +
+		"\tMemtable switch count: 0\n" +
+		"\tLocal read count: 1\n" +
+		"\tLocal read latency: 3.000 ms\n" +
+		"\tLocal write count: 4\n" +
+		"\tLocal write latency: 0.000 ms\n" +
+		"\tPending flushes: 0\n" +
+		"\tPercent repaired: 100.0\n" +
+		"\tBloom filter false positives: 0\n" +
+		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter space used: 0\n" +
+		"\tCompacted partition minimum bytes: 0\n" +
+		"\tCompacted partition maximum bytes: 0\n" +
+		"\tCompacted partition mean bytes: 0\n" +
+		"\tAverage live cells per slice (last five minutes): NaN\n" +
+		"\tMaximum live cells per slice (last five minutes): 0\n" +
+		"\tAverage tombstones per slice (last five minutes): NaN\n" +
+		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tDropped Mutations: 0\n" +
 		"\n";
 
 	public static final String expectedDefaultPrinterTable3Output =
-		"\t\tTable: %s\n" +
-		"\t\tSSTable count: 0\n" +
-		"\t\tSpace used (live): 0\n" +
-		"\t\tSpace used (total): 512\n" +
-		"\t\tSpace used by snapshots (total): 0\n" +
-		"\t\tSSTable Compression Ratio: -1.0\n" +
-		"\t\tNumber of partitions (estimate): 0\n" +
-		"\t\tMemtable cell count: 0\n" +
-		"\t\tMemtable data size: 1999\n" +
-		"\t\tMemtable switch count: 0\n" +
-		"\t\tLocal read count: 2\n" +
-		"\t\tLocal read latency: 4.000 ms\n" +
-		"\t\tLocal write count: 3\n" +
-		"\t\tLocal write latency: NaN ms\n" +
-		"\t\tPending flushes: 0\n" +
-		"\t\tPercent repaired: 100.0\n" +
-		"\t\tBloom filter false positives: 0\n" +
-		"\t\tBloom filter false ratio: 0.00000\n" +
-		"\t\tBloom filter space used: 0\n" +
-		"\t\tCompacted partition minimum bytes: 0\n" +
-		"\t\tCompacted partition maximum bytes: 0\n" +
-		"\t\tCompacted partition mean bytes: 0\n" +
-		"\t\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\t\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\t\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\t\tMaximum tombstones per slice (last five minutes): 0\n" +
-		"\t\tDropped Mutations: 0\n" +
+		"\tTable: %s\n" +
+		"\tSSTable count: 0\n" +
+		"\tSpace used (live): 0\n" +
+		"\tSpace used (total): 512\n" +
+		"\tSpace used by snapshots (total): 0\n" +
+		"\tSSTable Compression Ratio: -1.0\n" +
+		"\tNumber of partitions (estimate): 0\n" +
+		"\tMemtable cell count: 0\n" +
+		"\tMemtable data size: 1999\n" +
+		"\tMemtable switch count: 0\n" +
+		"\tLocal read count: 2\n" +
+		"\tLocal read latency: 4.000 ms\n" +
+		"\tLocal write count: 3\n" +
+		"\tLocal write latency: NaN ms\n" +
+		"\tPending flushes: 0\n" +
+		"\tPercent repaired: 100.0\n" +
+		"\tBloom filter false positives: 0\n" +
+		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter space used: 0\n" +
+		"\tCompacted partition minimum bytes: 0\n" +
+		"\tCompacted partition maximum bytes: 0\n" +
+		"\tCompacted partition mean bytes: 0\n" +
+		"\tAverage live cells per slice (last five minutes): NaN\n" +
+		"\tMaximum live cells per slice (last five minutes): 0\n" +
+		"\tAverage tombstones per slice (last five minutes): NaN\n" +
+		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tDropped Mutations: 0\n" +
 		"\n";
 
 	public static final String expectedDefaultPrinterTable4Output =
-		"\t\tTable: %s\n" +
-		"\t\tSSTable count: 0\n" +
-		"\t\tSpace used (live): 0\n" +
-		"\t\tSpace used (total): 256\n" +
-		"\t\tSpace used by snapshots (total): 0\n" +
-		"\t\tSSTable Compression Ratio: -1.0\n" +
-		"\t\tNumber of partitions (estimate): 0\n" +
-		"\t\tMemtable cell count: 0\n" +
-		"\t\tMemtable data size: 3000\n" +
-		"\t\tMemtable switch count: 0\n" +
-		"\t\tLocal read count: 3\n" +
-		"\t\tLocal read latency: NaN ms\n" +
-		"\t\tLocal write count: 2\n" +
-		"\t\tLocal write latency: 2.000 ms\n" +
-		"\t\tPending flushes: 0\n" +
-		"\t\tPercent repaired: 100.0\n" +
-		"\t\tBloom filter false positives: 0\n" +
-		"\t\tBloom filter false ratio: 0.00000\n" +
-		"\t\tBloom filter space used: 0\n" +
-		"\t\tCompacted partition minimum bytes: 0\n" +
-		"\t\tCompacted partition maximum bytes: 0\n" +
-		"\t\tCompacted partition mean bytes: 0\n" +
-		"\t\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\t\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\t\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\t\tMaximum tombstones per slice (last five minutes): 0\n" +
-		"\t\tDropped Mutations: 0\n" +
+		"\tTable: %s\n" +
+		"\tSSTable count: 0\n" +
+		"\tSpace used (live): 0\n" +
+		"\tSpace used (total): 256\n" +
+		"\tSpace used by snapshots (total): 0\n" +
+		"\tSSTable Compression Ratio: -1.0\n" +
+		"\tNumber of partitions (estimate): 0\n" +
+		"\tMemtable cell count: 0\n" +
+		"\tMemtable data size: 3000\n" +
+		"\tMemtable switch count: 0\n" +
+		"\tLocal read count: 3\n" +
+		"\tLocal read latency: NaN ms\n" +
+		"\tLocal write count: 2\n" +
+		"\tLocal write latency: 2.000 ms\n" +
+		"\tPending flushes: 0\n" +
+		"\tPercent repaired: 100.0\n" +
+		"\tBloom filter false positives: 0\n" +
+		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter space used: 0\n" +
+		"\tCompacted partition minimum bytes: 0\n" +
+		"\tCompacted partition maximum bytes: 0\n" +
+		"\tCompacted partition mean bytes: 0\n" +
+		"\tAverage live cells per slice (last five minutes): NaN\n" +
+		"\tMaximum live cells per slice (last five minutes): 0\n" +
+		"\tAverage tombstones per slice (last five minutes): NaN\n" +
+		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tDropped Mutations: 0\n" +
 		"\n";
 
 	public static final String expectedDefaultPrinterTable5Output =
-		"\t\tTable: %s\n" +
-		"\t\tSSTable count: 0\n" +
-		"\t\tSpace used (live): 0\n" +
-		"\t\tSpace used (total): 64\n" +
-		"\t\tSpace used by snapshots (total): 0\n" +
-		"\t\tSSTable Compression Ratio: -1.0\n" +
-		"\t\tNumber of partitions (estimate): 0\n" +
-		"\t\tMemtable cell count: 0\n" +
-		"\t\tMemtable data size: 20000\n" +
-		"\t\tMemtable switch count: 0\n" +
-		"\t\tLocal read count: 4\n" +
-		"\t\tLocal read latency: 0.000 ms\n" +
-		"\t\tLocal write count: 1\n" +
-		"\t\tLocal write latency: 1.000 ms\n" +
-		"\t\tPending flushes: 0\n" +
-		"\t\tPercent repaired: 100.0\n" +
-		"\t\tBloom filter false positives: 0\n" +
-		"\t\tBloom filter false ratio: 0.00000\n" +
-		"\t\tBloom filter space used: 0\n" +
-		"\t\tCompacted partition minimum bytes: 0\n" +
-		"\t\tCompacted partition maximum bytes: 0\n" +
-		"\t\tCompacted partition mean bytes: 0\n" +
-		"\t\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\t\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\t\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\t\tMaximum tombstones per slice (last five minutes): 0\n" +
-		"\t\tDropped Mutations: 0\n" +
+		"\tTable: %s\n" +
+		"\tSSTable count: 0\n" +
+		"\tSpace used (live): 0\n" +
+		"\tSpace used (total): 64\n" +
+		"\tSpace used by snapshots (total): 0\n" +
+		"\tSSTable Compression Ratio: -1.0\n" +
+		"\tNumber of partitions (estimate): 0\n" +
+		"\tMemtable cell count: 0\n" +
+		"\tMemtable data size: 20000\n" +
+		"\tMemtable switch count: 0\n" +
+		"\tLocal read count: 4\n" +
+		"\tLocal read latency: 0.000 ms\n" +
+		"\tLocal write count: 1\n" +
+		"\tLocal write latency: 1.000 ms\n" +
+		"\tPending flushes: 0\n" +
+		"\tPercent repaired: 100.0\n" +
+		"\tBloom filter false positives: 0\n" +
+		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter space used: 0\n" +
+		"\tCompacted partition minimum bytes: 0\n" +
+		"\tCompacted partition maximum bytes: 0\n" +
+		"\tCompacted partition mean bytes: 0\n" +
+		"\tAverage live cells per slice (last five minutes): NaN\n" +
+		"\tMaximum live cells per slice (last five minutes): 0\n" +
+		"\tAverage tombstones per slice (last five minutes): NaN\n" +
+		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tDropped Mutations: 0\n" +
 		"\n";
 
 	public static final String expectedDefaultPrinterTable6Output =
-		"\t\tTable: %s\n" +
-		"\t\tSSTable count: 0\n" +
-		"\t\tSpace used (live): 0\n" +
-		"\t\tSpace used (total): 0\n" +
-		"\t\tSpace used by snapshots (total): 0\n" +
-		"\t\tSSTable Compression Ratio: -1.0\n" +
-		"\t\tNumber of partitions (estimate): 0\n" +
-		"\t\tMemtable cell count: 0\n" +
-		"\t\tMemtable data size: 1000000\n" +
-		"\t\tMemtable switch count: 0\n" +
-		"\t\tLocal read count: 5\n" +
-		"\t\tLocal read latency: 1.000 ms\n" +
-		"\t\tLocal write count: 0\n" +
-		"\t\tLocal write latency: 0.500 ms\n" +
-		"\t\tPending flushes: 0\n" +
-		"\t\tPercent repaired: 100.0\n" +
-		"\t\tBloom filter false positives: 0\n" +
-		"\t\tBloom filter false ratio: 0.00000\n" +
-		"\t\tBloom filter space used: 0\n" +
-		"\t\tCompacted partition minimum bytes: 0\n" +
-		"\t\tCompacted partition maximum bytes: 0\n" +
-		"\t\tCompacted partition mean bytes: 0\n" +
-		"\t\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\t\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\t\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\t\tMaximum tombstones per slice (last five minutes): 0\n" +
-		"\t\tDropped Mutations: 0\n" +
+		"\tTable: %s\n" +
+		"\tSSTable count: 0\n" +
+		"\tSpace used (live): 0\n" +
+		"\tSpace used (total): 0\n" +
+		"\tSpace used by snapshots (total): 0\n" +
+		"\tSSTable Compression Ratio: -1.0\n" +
+		"\tNumber of partitions (estimate): 0\n" +
+		"\tMemtable cell count: 0\n" +
+		"\tMemtable data size: 1000000\n" +
+		"\tMemtable switch count: 0\n" +
+		"\tLocal read count: 5\n" +
+		"\tLocal read latency: 1.000 ms\n" +
+		"\tLocal write count: 0\n" +
+		"\tLocal write latency: 0.500 ms\n" +
+		"\tPending flushes: 0\n" +
+		"\tPercent repaired: 100.0\n" +
+		"\tBloom filter false positives: 0\n" +
+		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter space used: 0\n" +
+		"\tCompacted partition minimum bytes: 0\n" +
+		"\tCompacted partition maximum bytes: 0\n" +
+		"\tCompacted partition mean bytes: 0\n" +
+		"\tAverage live cells per slice (last five minutes): NaN\n" +
+		"\tMaximum live cells per slice (last five minutes): 0\n" +
+		"\tAverage tombstones per slice (last five minutes): NaN\n" +
+		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tDropped Mutations: 0\n" +
 		"\n";
 
 	/**
@@ -227,9 +227,9 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tWrite Count: 12\n" +
 		"\tWrite Latency: 0.0 ms\n" +
 		"\tPending Flushes: 0\n" +
-		String.format(expectedDefaultPrinterTable1Output, "table1") +
-		String.format(expectedDefaultPrinterTable2Output, "table2") +
-		String.format(expectedDefaultPrinterTable3Output, "table3") +
+		String.format(expectedDefaultPrinterTable1Output, "table1").replace("\t", "\t\t") +
+		String.format(expectedDefaultPrinterTable2Output, "table2").replace("\t", "\t\t") +
+		String.format(expectedDefaultPrinterTable3Output, "table3").replace("\t", "\t\t") +
 		"----------------\n" +
 		"Keyspace : keyspace2\n" +
 		"\tRead Count: 7\n" +
@@ -237,8 +237,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tWrite Count: 3\n" +
 		"\tWrite Latency: 0.0 ms\n" +
 		"\tPending Flushes: 0\n" +
-		String.format(expectedDefaultPrinterTable4Output, "table4") +
-		String.format(expectedDefaultPrinterTable5Output, "table5") +
+		String.format(expectedDefaultPrinterTable4Output, "table4").replace("\t", "\t\t") +
+		String.format(expectedDefaultPrinterTable5Output, "table5").replace("\t", "\t\t") +
 		"----------------\n" +
 		"Keyspace : keyspace3\n" +
 		"\tRead Count: 5\n" +
@@ -246,7 +246,47 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tWrite Count: 0\n" +
 		"\tWrite Latency: NaN ms\n" +
 		"\tPending Flushes: 0\n" +
-		String.format(expectedDefaultPrinterTable6Output, "table6") +
+		String.format(expectedDefaultPrinterTable6Output, "table6").replace("\t", "\t\t") +
+		"----------------\n";
+
+	/**
+	 * Expected output from SortedDefaultPrinter for data sorted by reads in this test.
+	 */
+	private static final String expectedSortedDefaultPrinterOutput =
+		"Total number of tables: 0\n" +
+		"----------------\n" +
+		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
+		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
+		String.format(expectedDefaultPrinterTable4Output, "keyspace2.table4") +
+		String.format(expectedDefaultPrinterTable3Output, "keyspace1.table3") +
+		String.format(expectedDefaultPrinterTable2Output, "keyspace1.table2") +
+		String.format(expectedDefaultPrinterTable1Output, "keyspace1.table1") +
+		"----------------\n";
+
+	/**
+	 * Expected output from SortedDefaultPrinter for data sorted by reads and filtered to the top 3 tables.
+	 */
+	private static final String expectedSortedDefaultPrinterFilteredOutput =
+		"Total number of tables: 0\n" +
+		"----------------\n" +
+		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
+		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
+		String.format(expectedDefaultPrinterTable4Output, "keyspace2.table4") +
+		String.format(expectedDefaultPrinterTable3Output, "keyspace1.table3") +
+		"----------------\n";
+
+	/**
+	 * Expected output from SortedDefaultPrinter for data sorted by reads and filtered to the top 10 tables.
+	 */
+	private static final String expectedSortedDefaultPrinterCoarselyFilteredOutput =
+		"Total number of tables: 0\n" +
+		"----------------\n" +
+		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
+		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
+		String.format(expectedDefaultPrinterTable4Output, "keyspace2.table4") +
+		String.format(expectedDefaultPrinterTable3Output, "keyspace1.table3") +
+		String.format(expectedDefaultPrinterTable2Output, "keyspace1.table2") +
+		String.format(expectedDefaultPrinterTable1Output, "keyspace1.table1") +
 		"----------------\n";
 
 	@Test
@@ -260,7 +300,27 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	@Test
 	public void testSortedDefaultPrinter() throws Exception {
-		assertEquals("StatsTablePrinter.SortedDefaultPrinter does not print test vector as expected", 1, 1);
+		// test sorting
+		StatsHolder holder = new TestTableStatsHolder(testKeyspaces, "reads", 0);
+		StatsPrinter printer = TableStatsPrinter.from("reads", true);
+		ByteArrayOutputStream byteStream = new ByteArrayOutputStream();
+		printer.print(holder, new PrintStream(byteStream));
+		assertEquals("StatsTablePrinter.SortedDefaultPrinter does not print sorted tables as expected",
+			     expectedSortedDefaultPrinterOutput, byteStream.toString());
+		byteStream.reset();
+		// test sorting and filtering top k, where k < total number of tables
+		holder = new TestTableStatsHolder(testKeyspaces, "reads", 4);
+		printer = TableStatsPrinter.from("reads", true);
+		printer.print(holder, new PrintStream(byteStream));
+		assertEquals("StatsTablePrinter.SortedDefaultPrinter does not print top K sorted tables as expected",
+			     expectedSortedDefaultPrinterFilteredOutput, byteStream.toString());
+		byteStream.reset();
+		// test sorting and filtering top k, where k >= total number of tables
+		holder = new TestTableStatsHolder(testKeyspaces, "reads", 10);
+		printer = TableStatsPrinter.from("reads", true);
+		printer.print(holder, new PrintStream(byteStream));
+		assertEquals("StatsTablePrinter.SortedDefaultPrinter does not print top K sorted tables as expected for large values of K",
+			     expectedSortedDefaultPrinterCoarselyFilteredOutput, byteStream.toString());
 	}
 
 	/**

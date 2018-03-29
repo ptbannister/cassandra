@@ -339,8 +339,9 @@ public class TableStatsHolder implements StatsHolder
         for (StatsKeyspace keyspace : keyspaces)
             tables.addAll(keyspace.tables);
         Collections.sort(tables, new StatsTableComparator(sortKey));
-        if (top > 0)
-            tables = tables.subList(0, top);
+	int k = (tables.size() >= top) ? top : tables.size();
+        if (k > 0)
+            tables = tables.subList(0, k);
         return tables;
     }
 

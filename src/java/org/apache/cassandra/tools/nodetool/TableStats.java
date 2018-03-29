@@ -68,6 +68,11 @@ public class TableStats extends NodeToolCmd
             throw new IllegalArgumentException("cannot filter top K tables without specifying a sort key.");
         }
 
+        if (top < 0)
+        {
+            throw new IllegalArgumentException("argument for top must be a positive integer.");
+        }
+
         // TODO: check specified sort key
 
         StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames, sortKey, top);
