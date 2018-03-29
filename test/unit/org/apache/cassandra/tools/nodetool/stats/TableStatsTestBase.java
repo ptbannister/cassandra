@@ -165,8 +165,6 @@ public class TableStatsTestBase {
 			for (StatsTable st : ks.tables) {
 				ks.readCount += st.localReadCount;
 				ks.writeCount += st.localWriteCount;
-				// TODO: totalReadTime
-				// TODO: totalWriteTime
 				ks.pendingFlushes += (long) st.pendingFlushes;
 			}
 			testKeyspaces.set(i, ks);
