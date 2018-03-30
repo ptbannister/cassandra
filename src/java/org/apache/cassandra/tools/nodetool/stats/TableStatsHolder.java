@@ -99,7 +99,6 @@ public class TableStatsHolder implements StatsHolder
     private Map<String, Object> convertSortedFilteredSubsetToMap()
     {
         HashMap<String, Object> mpRet = new HashMap<>();
-        // TODO: determine whether this should count the sorted filtered tables or all tables
         mpRet.put("total_number_of_tables", numberOfTables);
         List<StatsTable> sortedFilteredTables = getSortedFilteredTables();
         for (StatsTable table : sortedFilteredTables)

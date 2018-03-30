@@ -55,18 +55,18 @@ public class StatsTableComparatorTest extends TableStatsTestBase {
 		Collections.sort(testTables, writesComparator);
 		assertEquals("StatsTableComparator failed to sort by writes", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));
 		// read latency: 3 > 2 > 1 > 6 > 5 > 4
-		StatsTableComparator readLatencyComparator = new StatsTableComparator("readLatency");
+		StatsTableComparator readLatencyComparator = new StatsTableComparator("read_latency");
 		Collections.sort(testTables, readLatencyComparator);
-		assertEquals("StatsTableComparator failed to sort by readLatency", "table3 > table2 > table1 > table6 > table5 > table4", buildSortOrderString(testTables));
+		assertEquals("StatsTableComparator failed to sort by read_latency", "table3 > table2 > table1 > table6 > table5 > table4", buildSortOrderString(testTables));
 		// write latency: 4 > 5 > 6 > 1 > 2 > 3
-		Collections.sort(testTables, new StatsTableComparator("writeLatency"));
-		assertEquals("StatsTableComparator failed to sort by writeLatency", "table4 > table5 > table6 > table1 > table2 > table3", buildSortOrderString(testTables));
+		Collections.sort(testTables, new StatsTableComparator("write_latency"));
+		assertEquals("StatsTableComparator failed to sort by write_latency", "table4 > table5 > table6 > table1 > table2 > table3", buildSortOrderString(testTables));
 		// space used total: 1 > 2 > 3 > 4 > 5 > 6
-		Collections.sort(testTables, new StatsTableComparator("spaceUsedTotal"));
-		assertEquals("StatsTableComparator failed to sort by spaceUsedTotal", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));
+		Collections.sort(testTables, new StatsTableComparator("space_used_total"));
+		assertEquals("StatsTableComparator failed to sort by space_used_total", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));
 		// memtable data size: 6 > 5 > 4 > 3 > 2 > 1
-		Collections.sort(testTables, new StatsTableComparator("memtableDataSize"));
-		assertEquals("StatsTableComparator failed to sort by memtableDataSize", "table6 > table5 > table4 > table3 > table2 > table1", buildSortOrderString(testTables));
+		Collections.sort(testTables, new StatsTableComparator("memtable_data_size"));
+		assertEquals("StatsTableComparator failed to sort by memtable_data_size", "table6 > table5 > table4 > table3 > table2 > table1", buildSortOrderString(testTables));
 	}
 
 }

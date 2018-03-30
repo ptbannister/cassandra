@@ -74,6 +74,16 @@ public class TableStats extends NodeToolCmd
         }
 
         // TODO: check specified sort key
+	if (!Arrays.asList(StatsTableComparator.supportedSortKeys).contains(sortKey))
+	{
+	    String message = "argument for sort must be one of: ";
+	    message += StatsTableComparator.supportedSortKeys[0];
+	    for (int i=1; i<StatsTableComparator.supportedSortKeys.length; i++)
+	    {
+		message += ", " + StatsTableComparator.supportedSortKeys[i];
+	    }
+	    throw new IllegalArgumentException(message);
+	}
 
         StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames, sortKey, top);
         // print out the keyspace and table statistics
