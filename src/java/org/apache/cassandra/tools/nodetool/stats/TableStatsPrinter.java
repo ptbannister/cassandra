@@ -125,9 +125,15 @@ public class TableStatsPrinter
         @Override
         public void print(TableStatsHolder data, PrintStream out)
         {
-            out.println("Total number of tables: " + data.numberOfTables);
-            out.println("----------------");
             List<StatsTable> tables = data.getSortedFilteredTables();
+            String totalTablesSummary = String.format("Total number of tables: %d", data.numberOfTables);
+            if (data.top > 0)
+            {
+                int k = (data.top <= data.numberOfTables) ? data.top : data.numberOfTables;
+                totalTablesSummary += String.format(" (showing top %d by %s)", k, data.sortKey);
+            }
+            out.println(totalTablesSummary);
+            out.println("----------------");
             for (StatsTable table : tables)
             {
                 printStatsTable(table, table.keyspaceName + "." + table.tableName, "\t", out);

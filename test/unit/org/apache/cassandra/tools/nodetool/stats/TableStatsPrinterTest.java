@@ -264,10 +264,10 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"----------------\n";
 
 	/**
-	 * Expected output from SortedDefaultPrinter for data sorted by reads and filtered to the top 3 tables.
+	 * Expected output from SortedDefaultPrinter for data sorted by reads and limited to the top 4 tables.
 	 */
-	private static final String expectedSortedDefaultPrinterFilteredOutput =
-		"Total number of tables: 0\n" +
+	private static final String expectedSortedDefaultPrinterTopOutput =
+		"Total number of tables: 0 (showing top 0 by %s)\n" +
 		"----------------\n" +
 		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
 		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
@@ -276,10 +276,10 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"----------------\n";
 
 	/**
-	 * Expected output from SortedDefaultPrinter for data sorted by reads and filtered to the top 10 tables.
+	 * Expected output from SortedDefaultPrinter for data sorted by reads and limited to the top 10 tables.
 	 */
-	private static final String expectedSortedDefaultPrinterCoarselyFilteredOutput =
-		"Total number of tables: 0\n" +
+	private static final String expectedSortedDefaultPrinterLargeTopOutput =
+		"Total number of tables: 0 (showing top 0 by %s)\n" +
 		"----------------\n" +
 		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
 		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
@@ -309,18 +309,22 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 			     expectedSortedDefaultPrinterOutput, byteStream.toString());
 		byteStream.reset();
 		// test sorting and filtering top k, where k < total number of tables
-		holder = new TestTableStatsHolder(testKeyspaces, "reads", 4);
-		printer = TableStatsPrinter.from("reads", true);
+		String sortKey = "reads";
+		int top = 4;
+		holder = new TestTableStatsHolder(testKeyspaces, sortKey, top);
+		printer = TableStatsPrinter.from(sortKey, true);
 		printer.print(holder, new PrintStream(byteStream));
 		assertEquals("StatsTablePrinter.SortedDefaultPrinter does not print top K sorted tables as expected",
-			     expectedSortedDefaultPrinterFilteredOutput, byteStream.toString());
+			     String.format(expectedSortedDefaultPrinterTopOutput, sortKey), byteStream.toString());
 		byteStream.reset();
 		// test sorting and filtering top k, where k >= total number of tables
-		holder = new TestTableStatsHolder(testKeyspaces, "reads", 10);
-		printer = TableStatsPrinter.from("reads", true);
+		sortKey = "reads";
+		top = 10;
+		holder = new TestTableStatsHolder(testKeyspaces, sortKey, top);
+		printer = TableStatsPrinter.from(sortKey, true);
 		printer.print(holder, new PrintStream(byteStream));
 		assertEquals("StatsTablePrinter.SortedDefaultPrinter does not print top K sorted tables as expected for large values of K",
-			     expectedSortedDefaultPrinterCoarselyFilteredOutput, byteStream.toString());
+			     String.format(expectedSortedDefaultPrinterLargeTopOutput, sortKey), byteStream.toString());
 	}
 
 	/**
