@@ -35,7 +35,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable1Output =
 		"\tTable: %s\n" +
-		"\tSSTable count: 0\n" +
+		"\tSSTable count: 60000\n" +
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 9001\n" +
 		"\tSpace used by snapshots (total): 0\n" +
@@ -50,8 +50,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tLocal write latency: 0.050 ms\n" +
 		"\tPending flushes: 0\n" +
 		"\tPercent repaired: 100.0\n" +
-		"\tBloom filter false positives: 0\n" +
-		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter false positives: 30\n" +
+		"\tBloom filter false ratio: 0.40000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
@@ -65,7 +65,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable2Output =
 		"\tTable: %s\n" +
-		"\tSSTable count: 0\n" +
+		"\tSSTable count: 3000\n" +
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 1024\n" +
 		"\tSpace used by snapshots (total): 0\n" +
@@ -80,8 +80,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tLocal write latency: 0.000 ms\n" +
 		"\tPending flushes: 0\n" +
 		"\tPercent repaired: 100.0\n" +
-		"\tBloom filter false positives: 0\n" +
-		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter false positives: 600\n" +
+		"\tBloom filter false ratio: 0.01000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
@@ -95,7 +95,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable3Output =
 		"\tTable: %s\n" +
-		"\tSSTable count: 0\n" +
+		"\tSSTable count: 50000\n" +
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 512\n" +
 		"\tSpace used by snapshots (total): 0\n" +
@@ -110,8 +110,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tLocal write latency: NaN ms\n" +
 		"\tPending flushes: 0\n" +
 		"\tPercent repaired: 100.0\n" +
-		"\tBloom filter false positives: 0\n" +
-		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter false positives: 20\n" +
+		"\tBloom filter false ratio: 0.50000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
@@ -125,7 +125,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable4Output =
 		"\tTable: %s\n" +
-		"\tSSTable count: 0\n" +
+		"\tSSTable count: 2000\n" +
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 256\n" +
 		"\tSpace used by snapshots (total): 0\n" +
@@ -140,8 +140,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tLocal write latency: 2.000 ms\n" +
 		"\tPending flushes: 0\n" +
 		"\tPercent repaired: 100.0\n" +
-		"\tBloom filter false positives: 0\n" +
-		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter false positives: 500\n" +
+		"\tBloom filter false ratio: 0.02000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
@@ -155,7 +155,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable5Output =
 		"\tTable: %s\n" +
-		"\tSSTable count: 0\n" +
+		"\tSSTable count: 40000\n" +
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 64\n" +
 		"\tSpace used by snapshots (total): 0\n" +
@@ -170,8 +170,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tLocal write latency: 1.000 ms\n" +
 		"\tPending flushes: 0\n" +
 		"\tPercent repaired: 100.0\n" +
-		"\tBloom filter false positives: 0\n" +
-		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter false positives: 10\n" +
+		"\tBloom filter false ratio: 0.60000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
@@ -185,7 +185,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 
 	public static final String expectedDefaultPrinterTable6Output =
 		"\tTable: %s\n" +
-		"\tSSTable count: 0\n" +
+		"\tSSTable count: 1000\n" +
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 0\n" +
 		"\tSpace used by snapshots (total): 0\n" +
@@ -200,8 +200,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tLocal write latency: 0.500 ms\n" +
 		"\tPending flushes: 0\n" +
 		"\tPercent repaired: 100.0\n" +
-		"\tBloom filter false positives: 0\n" +
-		"\tBloom filter false ratio: 0.00000\n" +
+		"\tBloom filter false positives: 400\n" +
+		"\tBloom filter false ratio: 0.03000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
