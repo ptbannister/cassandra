@@ -45,7 +45,20 @@ public class StatsTableComparatorTest extends TableStatsTestBase {
 	}
 
 	@Test
-	public void testCompare() throws Exception {
+	public void testCompareDoubles() throws Exception
+	{
+		// read latency: 3 > 2 > 1 > 6 > 5 > 4
+		StatsTableComparator readLatencyComparator = new StatsTableComparator("read_latency");
+		Collections.sort(testTables, readLatencyComparator);
+		assertEquals("StatsTableComparator failed to sort by read_latency", "table3 > table2 > table1 > table6 > table5 > table4", buildSortOrderString(testTables));
+		// write latency: 4 > 5 > 6 > 1 > 2 > 3
+		Collections.sort(testTables, new StatsTableComparator("write_latency"));
+		assertEquals("StatsTableComparator failed to sort by write_latency", "table4 > table5 > table6 > table1 > table2 > table3", buildSortOrderString(testTables));
+	}
+
+	@Test
+	public void testCompareLongs() throws Exception
+	{
 		// reads: 6 > 5 > 4 > 3 > 2 > 1
 		StatsTableComparator readsComparator = new StatsTableComparator("reads");
 		Collections.sort(testTables, readsComparator);
@@ -54,13 +67,31 @@ public class StatsTableComparatorTest extends TableStatsTestBase {
 		StatsTableComparator writesComparator = new StatsTableComparator("writes");
 		Collections.sort(testTables, writesComparator);
 		assertEquals("StatsTableComparator failed to sort by writes", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));
-		// read latency: 3 > 2 > 1 > 6 > 5 > 4
-		StatsTableComparator readLatencyComparator = new StatsTableComparator("read_latency");
-		Collections.sort(testTables, readLatencyComparator);
-		assertEquals("StatsTableComparator failed to sort by read_latency", "table3 > table2 > table1 > table6 > table5 > table4", buildSortOrderString(testTables));
-		// write latency: 4 > 5 > 6 > 1 > 2 > 3
-		Collections.sort(testTables, new StatsTableComparator("write_latency"));
-		assertEquals("StatsTableComparator failed to sort by write_latency", "table4 > table5 > table6 > table1 > table2 > table3", buildSortOrderString(testTables));
+	}
+
+	@Test
+	public void testCompareObjects() throws Exception
+	{
+		// bloom filter false positive ratio is a Double stored as an Object
+		// 5 > 3 > 1 > 6 > 4 > 2
+		StatsTableComparator bloomRatioComparator = new StatsTableComparator("bloom_filter_false_ratio");
+		Collections.sort(testTables, bloomRatioComparator);
+		assertEquals("StatsTableComparator failed to sort by bloom_filter_false_ratio", "table5 > table3 > table1 > table6 > table4 > table2", buildSortOrderString(testTables));
+		// sstable count is an Integer stored as an Object
+		// 1 > 3 > 5 > 2 > 4 > 6
+		StatsTableComparator sstableCountComparator = new StatsTableComparator("sstable_count");
+		Collections.sort(testTables, sstableCountComparator);
+		assertEquals("StatsTableComparator failed to sort by sstable_count", "table1 > table3 > table5 > table2 > table4 > table6", buildSortOrderString(testTables));
+		// bloom filter false positives is a Long stored as an Object
+		// 2 > 4 > 6 > 1 > 3 > 5
+		StatsTableComparator bloomFalseComparator = new StatsTableComparator("bloom_filter_false_positives");
+		Collections.sort(testTables, bloomFalseComparator);
+		assertEquals("StatsTableComparator failed to sort by bloom_filter_false_positives", "table2 > table4 > table6 > table1 > table3 > table5", buildSortOrderString(testTables));
+	}
+
+	@Test
+	public void testCompareStrings() throws Exception
+	{
 		// space used total: 1 > 2 > 3 > 4 > 5 > 6
 		Collections.sort(testTables, new StatsTableComparator("space_used_total"));
 		assertEquals("StatsTableComparator failed to sort by space_used_total", "table1 > table2 > table3 > table4 > table5 > table6", buildSortOrderString(testTables));

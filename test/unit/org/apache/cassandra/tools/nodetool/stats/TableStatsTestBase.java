@@ -143,6 +143,27 @@ public class TableStatsTestBase {
 		table4.memtableDataSize = "3000";
 		table5.memtableDataSize = "20000";
 		table6.memtableDataSize = "1000000";
+		// sstable count: 1 > 3 > 5 > 2 > 4 > 6
+		table1.sstableCount = (Object) 60000;
+		table2.sstableCount = (Object) 3000;
+		table3.sstableCount = (Object) 50000;
+		table4.sstableCount = (Object) 2000;
+		table5.sstableCount = (Object) 40000;
+		table6.sstableCount = (Object) 1000;
+		// bloom filter false positives: 2 > 4 > 6 > 1 > 3 > 5
+		table1.bloomFilterFalsePositives = (Object) 30L;
+		table2.bloomFilterFalsePositives = (Object) 600L;
+		table3.bloomFilterFalsePositives = (Object) 20L;
+		table4.bloomFilterFalsePositives = (Object) 500L;
+		table5.bloomFilterFalsePositives = (Object) 10L;
+		table6.bloomFilterFalsePositives = (Object) 400L;
+		// bloom filter false positive ratio: 5 > 3 > 1 > 6 > 4 > 2
+		table1.bloomFilterFalseRatio = (Object) 0.40D;
+		table2.bloomFilterFalseRatio = (Object) 0.01D;
+		table3.bloomFilterFalseRatio = (Object) 0.50D;
+		table4.bloomFilterFalseRatio = (Object) 0.02D;
+		table5.bloomFilterFalseRatio = (Object) 0.60D;
+		table6.bloomFilterFalseRatio = (Object) 0.03D;
 		// create test keyspaces from templates
 		testKeyspaces = new ArrayList<StatsKeyspace>();
 		StatsKeyspace keyspace1 = createStatsKeyspaceTemplate("keyspace1");
