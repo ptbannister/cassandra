@@ -33,7 +33,7 @@ import org.apache.cassandra.tools.NodeProbe;
 
 public class TableStatsPrinterTest extends TableStatsTestBase {
 
-	public static final String expectedDefaultPrinterTable1Output =
+	public static final String expectedDefaultTable1Output =
 		"\tTable: %s\n" +
 		"\tSSTable count: 60000\n" +
 		"\tSpace used (live): 0\n" +
@@ -63,7 +63,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tDropped Mutations: 0\n" +
 		"\n";
 
-	public static final String expectedDefaultPrinterTable2Output =
+	public static final String expectedDefaultTable2Output =
 		"\tTable: %s\n" +
 		"\tSSTable count: 3000\n" +
 		"\tSpace used (live): 0\n" +
@@ -93,7 +93,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tDropped Mutations: 0\n" +
 		"\n";
 
-	public static final String expectedDefaultPrinterTable3Output =
+	public static final String expectedDefaultTable3Output =
 		"\tTable: %s\n" +
 		"\tSSTable count: 50000\n" +
 		"\tSpace used (live): 0\n" +
@@ -123,7 +123,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tDropped Mutations: 0\n" +
 		"\n";
 
-	public static final String expectedDefaultPrinterTable4Output =
+	public static final String expectedDefaultTable4Output =
 		"\tTable: %s\n" +
 		"\tSSTable count: 2000\n" +
 		"\tSpace used (live): 0\n" +
@@ -153,7 +153,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tDropped Mutations: 0\n" +
 		"\n";
 
-	public static final String expectedDefaultPrinterTable5Output =
+	public static final String expectedDefaultTable5Output =
 		"\tTable: %s\n" +
 		"\tSSTable count: 40000\n" +
 		"\tSpace used (live): 0\n" +
@@ -183,7 +183,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tDropped Mutations: 0\n" +
 		"\n";
 
-	public static final String expectedDefaultPrinterTable6Output =
+	public static final String expectedDefaultTable6Output =
 		"\tTable: %s\n" +
 		"\tSSTable count: 1000\n" +
 		"\tSpace used (live): 0\n" +
@@ -227,9 +227,9 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tWrite Count: 12\n" +
 		"\tWrite Latency: 0.0 ms\n" +
 		"\tPending Flushes: 0\n" +
-		String.format(expectedDefaultPrinterTable1Output, "table1").replace("\t", "\t\t") +
-		String.format(expectedDefaultPrinterTable2Output, "table2").replace("\t", "\t\t") +
-		String.format(expectedDefaultPrinterTable3Output, "table3").replace("\t", "\t\t") +
+		String.format(expectedDefaultTable1Output, "table1").replace("\t", "\t\t") +
+		String.format(expectedDefaultTable2Output, "table2").replace("\t", "\t\t") +
+		String.format(expectedDefaultTable3Output, "table3").replace("\t", "\t\t") +
 		"----------------\n" +
 		"Keyspace : keyspace2\n" +
 		"\tRead Count: 7\n" +
@@ -237,8 +237,8 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tWrite Count: 3\n" +
 		"\tWrite Latency: 0.0 ms\n" +
 		"\tPending Flushes: 0\n" +
-		String.format(expectedDefaultPrinterTable4Output, "table4").replace("\t", "\t\t") +
-		String.format(expectedDefaultPrinterTable5Output, "table5").replace("\t", "\t\t") +
+		String.format(expectedDefaultTable4Output, "table4").replace("\t", "\t\t") +
+		String.format(expectedDefaultTable5Output, "table5").replace("\t", "\t\t") +
 		"----------------\n" +
 		"Keyspace : keyspace3\n" +
 		"\tRead Count: 5\n" +
@@ -246,7 +246,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tWrite Count: 0\n" +
 		"\tWrite Latency: NaN ms\n" +
 		"\tPending Flushes: 0\n" +
-		String.format(expectedDefaultPrinterTable6Output, "table6").replace("\t", "\t\t") +
+		String.format(expectedDefaultTable6Output, "table6").replace("\t", "\t\t") +
 		"----------------\n";
 
 	/**
@@ -255,12 +255,12 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 	private static final String expectedSortedDefaultPrinterOutput =
 		"Total number of tables: 0\n" +
 		"----------------\n" +
-		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
-		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
-		String.format(expectedDefaultPrinterTable4Output, "keyspace2.table4") +
-		String.format(expectedDefaultPrinterTable3Output, "keyspace1.table3") +
-		String.format(expectedDefaultPrinterTable2Output, "keyspace1.table2") +
-		String.format(expectedDefaultPrinterTable1Output, "keyspace1.table1") +
+		String.format(expectedDefaultTable6Output, "keyspace3.table6") +
+		String.format(expectedDefaultTable5Output, "keyspace2.table5") +
+		String.format(expectedDefaultTable4Output, "keyspace2.table4") +
+		String.format(expectedDefaultTable3Output, "keyspace1.table3") +
+		String.format(expectedDefaultTable2Output, "keyspace1.table2") +
+		String.format(expectedDefaultTable1Output, "keyspace1.table1") +
 		"----------------\n";
 
 	/**
@@ -269,10 +269,10 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 	private static final String expectedSortedDefaultPrinterTopOutput =
 		"Total number of tables: 0 (showing top 0 by %s)\n" +
 		"----------------\n" +
-		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
-		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
-		String.format(expectedDefaultPrinterTable4Output, "keyspace2.table4") +
-		String.format(expectedDefaultPrinterTable3Output, "keyspace1.table3") +
+		String.format(expectedDefaultTable6Output, "keyspace3.table6") +
+		String.format(expectedDefaultTable5Output, "keyspace2.table5") +
+		String.format(expectedDefaultTable4Output, "keyspace2.table4") +
+		String.format(expectedDefaultTable3Output, "keyspace1.table3") +
 		"----------------\n";
 
 	/**
@@ -281,12 +281,12 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 	private static final String expectedSortedDefaultPrinterLargeTopOutput =
 		"Total number of tables: 0 (showing top 0 by %s)\n" +
 		"----------------\n" +
-		String.format(expectedDefaultPrinterTable6Output, "keyspace3.table6") +
-		String.format(expectedDefaultPrinterTable5Output, "keyspace2.table5") +
-		String.format(expectedDefaultPrinterTable4Output, "keyspace2.table4") +
-		String.format(expectedDefaultPrinterTable3Output, "keyspace1.table3") +
-		String.format(expectedDefaultPrinterTable2Output, "keyspace1.table2") +
-		String.format(expectedDefaultPrinterTable1Output, "keyspace1.table1") +
+		String.format(expectedDefaultTable6Output, "keyspace3.table6") +
+		String.format(expectedDefaultTable5Output, "keyspace2.table5") +
+		String.format(expectedDefaultTable4Output, "keyspace2.table4") +
+		String.format(expectedDefaultTable3Output, "keyspace1.table3") +
+		String.format(expectedDefaultTable2Output, "keyspace1.table2") +
+		String.format(expectedDefaultTable1Output, "keyspace1.table1") +
 		"----------------\n";
 
 	@Test

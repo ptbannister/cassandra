@@ -70,6 +70,19 @@ public class StatsTableComparatorTest extends TableStatsTestBase {
 	}
 
 	@Test
+	public void testCompareHumanReadable() throws Exception
+	{
+		// human readable space used total: 6 > 5 > 4 > 3 > 2 > 1
+		StatsTableComparator spaceTotalComparator = new StatsTableComparator("space_used_total", true);
+		Collections.sort(humanReadableTables, spaceTotalComparator);
+		assertEquals("StatsTableComparator failed to sort by human readable space used total", "table6 > table5 > table4 > table3 > table2 > table1", buildSortOrderString(humanReadableTables));
+		// human readable memtable data size: 1 > 3 > 5 > 2 > 4 > 6
+		StatsTableComparator memtableSizeComparator = new StatsTableComparator("memtable_data_size", true);
+		Collections.sort(humanReadableTables, memtableSizeComparator);
+		assertEquals("StatsTableComparator failed to sort by human readable memtable data size", "table1 > table3 > table5 > table2 > table4 > table6", buildSortOrderString(humanReadableTables));
+	}
+
+	@Test
 	public void testCompareObjects() throws Exception
 	{
 		// bloom filter false positive ratio is a Double stored as an Object

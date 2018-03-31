@@ -31,12 +31,22 @@ import java.util.List;
 public class TableStatsTestBase {
 
 	/**
-	 * A test vector of StatsKeyspace and StatsTable objects
+	 * A test vector of StatsKeyspace and StatsTable objects loaded with human readable stats.
+	 */
+	protected static List<StatsKeyspace> humanReadableKeyspaces;
+
+	/**
+	 * A test vector of StatsTable objects loaded with human readable statistics.
+	 */
+	protected static List<StatsTable> humanReadableTables;
+
+	/**
+	 * A test vector of StatsKeyspace and StatsTable objects.
 	 */
 	protected static List<StatsKeyspace> testKeyspaces;
 
 	/**
-	 * A test vector of StatsTable objects
+	 * A test vector of StatsTable objects.
 	 */
 	protected static List<StatsTable> testTables;
 
@@ -198,5 +208,61 @@ public class TableStatsTestBase {
 		testTables.add(table4);
 		testTables.add(table5);
 		testTables.add(table6);
+		//
+		// create test vector for human readable case
+		StatsTable humanReadableTable1 = createStatsTableTemplate("keyspace1", "table1");
+		StatsTable humanReadableTable2 = createStatsTableTemplate("keyspace1", "table2");
+		StatsTable humanReadableTable3 = createStatsTableTemplate("keyspace1", "table3");
+		StatsTable humanReadableTable4 = createStatsTableTemplate("keyspace2", "table4");
+		StatsTable humanReadableTable5 = createStatsTableTemplate("keyspace2", "table5");
+		StatsTable humanReadableTable6 = createStatsTableTemplate("keyspace3", "table6");
+		// human readable space used total: 6 > 5 > 4 > 3 > 2 > 1
+		humanReadableTable1.spaceUsedTotal = "999 bytes";
+		humanReadableTable2.spaceUsedTotal = "5 KiB";
+		humanReadableTable3.spaceUsedTotal = "40 KiB";
+		humanReadableTable4.spaceUsedTotal = "3 MiB";
+		humanReadableTable5.spaceUsedTotal = "2 GiB";
+		humanReadableTable6.spaceUsedTotal = "1 TiB";
+		// human readable memtable data size: 1 > 3 > 5 > 2 > 4 > 6
+		humanReadableTable1.memtableDataSize = "1.21 TiB";
+		humanReadableTable2.memtableDataSize = "42 KiB";
+		humanReadableTable3.memtableDataSize = "2.71 GiB";
+		humanReadableTable4.memtableDataSize = "999 bytes";
+		humanReadableTable5.memtableDataSize = "3.14 MiB";
+		humanReadableTable6.memtableDataSize = "0 bytes";
+		// create human readable keyspaces from template
+		humanReadableKeyspaces = new ArrayList<StatsKeyspace>();
+		StatsKeyspace humanReadableKeyspace1 = createStatsKeyspaceTemplate("keyspace1");
+		StatsKeyspace humanReadableKeyspace2 = createStatsKeyspaceTemplate("keyspace2");
+		StatsKeyspace humanReadableKeyspace3 = createStatsKeyspaceTemplate("keyspace3");
+		// populate human readable StatsKeyspace tables lists
+		humanReadableKeyspace1.tables.add(humanReadableTable1);
+		humanReadableKeyspace1.tables.add(humanReadableTable2);
+		humanReadableKeyspace1.tables.add(humanReadableTable3);
+		humanReadableKeyspace2.tables.add(humanReadableTable4);
+		humanReadableKeyspace2.tables.add(humanReadableTable5);
+		humanReadableKeyspace3.tables.add(humanReadableTable6);
+		// populate human readable keyspaces test vector
+		humanReadableKeyspaces.add(humanReadableKeyspace1);
+		humanReadableKeyspaces.add(humanReadableKeyspace2);
+		humanReadableKeyspaces.add(humanReadableKeyspace3);
+		// compute human readable keyspace statistics from relevant table metrics
+		for (int i = 0; i < humanReadableKeyspaces.size(); i++) {
+			StatsKeyspace ks = humanReadableKeyspaces.get(i);
+			for (StatsTable st : ks.tables) {
+				ks.readCount += st.localReadCount;
+				ks.writeCount += st.localWriteCount;
+				ks.pendingFlushes += (long) st.pendingFlushes;
+			}
+			humanReadableKeyspaces.set(i, ks);
+		}
+		// populate human readable tables test vector
+		humanReadableTables = new ArrayList<StatsTable>();
+		humanReadableTables.add(humanReadableTable1);
+		humanReadableTables.add(humanReadableTable2);
+		humanReadableTables.add(humanReadableTable3);
+		humanReadableTables.add(humanReadableTable4);
+		humanReadableTables.add(humanReadableTable5);
+		humanReadableTables.add(humanReadableTable6);
 	}
 }
