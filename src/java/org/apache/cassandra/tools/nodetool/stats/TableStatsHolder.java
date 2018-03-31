@@ -33,23 +33,25 @@ public class TableStatsHolder implements StatsHolder
 {
     public final List<StatsKeyspace> keyspaces;
     public final int numberOfTables;
+	public final boolean humanReadable;
     public final String sortKey;
     public final int top;
 
     public TableStatsHolder(NodeProbe probe, boolean humanReadable, boolean ignore, List<String> tableNames, String sortKey, int top)
     {
         this.keyspaces = new ArrayList<>();
+		this.humanReadable = humanReadable;
+        this.sortKey = sortKey;
+        this.top = top;
         if (!this.isTestTableStatsHolder())
         {
             this.numberOfTables = probe.getNumberOfTables();
-            this.initializeKeyspaces(probe, humanReadable, ignore, tableNames);
+            this.initializeKeyspaces(probe, ignore, tableNames);
         }
         else
         {
             this.numberOfTables = 0;
         }
-        this.sortKey = sortKey;
-        this.top = top;
     }
 
     @Override
@@ -157,7 +159,7 @@ public class TableStatsHolder implements StatsHolder
         return mpTable;
     }
 
-    private void initializeKeyspaces(NodeProbe probe, boolean humanReadable, boolean ignore, List<String> tableNames)
+    private void initializeKeyspaces(NodeProbe probe, boolean ignore, List<String> tableNames)
     {
         OptionFilter filter = new OptionFilter(ignore, tableNames);
         ArrayListMultimap<String, ColumnFamilyStoreMBean> selectedTableMbeans = ArrayListMultimap.create();
@@ -337,8 +339,8 @@ public class TableStatsHolder implements StatsHolder
         List<StatsTable> tables = new ArrayList<>();
         for (StatsKeyspace keyspace : keyspaces)
             tables.addAll(keyspace.tables);
-        Collections.sort(tables, new StatsTableComparator(sortKey));
-	int k = (tables.size() >= top) ? top : tables.size();
+        Collections.sort(tables, new StatsTableComparator(sortKey, humanReadable));
+        int k = (tables.size() >= top) ? top : tables.size();
         if (k > 0)
             tables = tables.subList(0, k);
         return tables;
