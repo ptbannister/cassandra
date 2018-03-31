@@ -33,14 +33,14 @@ public class TableStatsHolder implements StatsHolder
 {
     public final List<StatsKeyspace> keyspaces;
     public final int numberOfTables;
-	public final boolean humanReadable;
+    public final boolean humanReadable;
     public final String sortKey;
     public final int top;
 
     public TableStatsHolder(NodeProbe probe, boolean humanReadable, boolean ignore, List<String> tableNames, String sortKey, int top)
     {
         this.keyspaces = new ArrayList<>();
-		this.humanReadable = humanReadable;
+        this.humanReadable = humanReadable;
         this.sortKey = sortKey;
         this.top = top;
         if (!this.isTestTableStatsHolder())

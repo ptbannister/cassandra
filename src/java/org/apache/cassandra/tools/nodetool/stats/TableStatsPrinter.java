@@ -39,6 +39,9 @@ public class TableStatsPrinter
         }
     }
 
+    /**
+     * A StatsPrinter to print stats in a keyspace-centric way, nesting stats for each table under their parent keyspaces.
+     */
     private static class DefaultPrinter implements StatsPrinter<TableStatsHolder>
     {
         @Override
@@ -120,6 +123,9 @@ public class TableStatsPrinter
         }
     }
 
+    /**
+     * A StatsPrinter to print stats in a sorted, table-centric way.
+     */
     private static class SortedDefaultPrinter extends DefaultPrinter
     {
         @Override
