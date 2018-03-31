@@ -47,7 +47,7 @@ public class TableStats extends NodeToolCmd
 
     @Option(title = "sort_key",
             name = {"-s", "--sort"},
-            description = "Sorting key (readLatency, reads, writeLatency, writes, etc)")
+            description = "Sort tables by specified sort key (reads, read_latency, sstable_count, writes, write_latency, etc)")
     private String sortKey = "";
 
     @Option(title = "top",
@@ -73,17 +73,10 @@ public class TableStats extends NodeToolCmd
             throw new IllegalArgumentException("argument for top must be a positive integer.");
         }
 
-        // TODO: check specified sort key
-    if (!Arrays.asList(StatsTableComparator.supportedSortKeys).contains(sortKey))
-    {
-        String message = "argument for sort must be one of: ";
-        message += StatsTableComparator.supportedSortKeys[0];
-        for (int i=1; i<StatsTableComparator.supportedSortKeys.length; i++)
+        if (!Arrays.asList(StatsTableComparator.supportedSortKeys).contains(sortKey))
         {
-            message += ", " + StatsTableComparator.supportedSortKeys[i];
+            throw new IllegalArgumentException(String.format("argument for sort must be one of: %s", String.join(", ", StatsTableComparator.supportedSortKeys)));
         }
-        throw new IllegalArgumentException(message);
-    }
 
         StatsHolder holder = new TableStatsHolder(probe, humanReadable, ignore, tableNames, sortKey, top);
         // print out the keyspace and table statistics
