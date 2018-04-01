@@ -28,7 +28,8 @@ import java.util.List;
 /**
  * Create a test vector for unit testing of TableStats features.
  */
-public class TableStatsTestBase {
+public class TableStatsTestBase
+{
 
 	/**
 	 * A test vector of StatsKeyspace and StatsTable objects loaded with human readable stats.
@@ -53,14 +54,16 @@ public class TableStatsTestBase {
 	/**
 	 * @returns StatsKeyspace an instance of StatsKeyspace preset with values for use in a test vector
 	 */
-	private static StatsKeyspace createStatsKeyspaceTemplate(String keyspaceName) {
+	private static StatsKeyspace createStatsKeyspaceTemplate(String keyspaceName)
+	{
 		return new StatsKeyspace(null, keyspaceName);
 	}
 
 	/**
 	 * @returns StatsTable an instance of StatsTable preset with values for use in a test vector
 	 */
-	private static StatsTable createStatsTableTemplate(String keyspaceName, String tableName) {
+	private static StatsTable createStatsTableTemplate(String keyspaceName, String tableName)
+	{
 		StatsTable template = new StatsTable();
 		template.keyspaceName = new String(keyspaceName);
 		template.tableName = new String(tableName);
@@ -103,7 +106,8 @@ public class TableStatsTestBase {
 	}
 
 	@BeforeClass
-	public static void createTestVector() {
+	public static void createTestVector()
+	{
 		// create test tables from templates
 		StatsTable table1 = createStatsTableTemplate("keyspace1", "table1");
 		StatsTable table2 = createStatsTableTemplate("keyspace1", "table2");
@@ -174,6 +178,28 @@ public class TableStatsTestBase {
 		table4.bloomFilterFalseRatio = (Object) 0.02D;
 		table5.bloomFilterFalseRatio = (Object) 0.60D;
 		table6.bloomFilterFalseRatio = (Object) 0.03D;
+		// set even numbered tables to have some offheap usage
+		table2.offHeapUsed = true;
+		table4.offHeapUsed = true;
+		table6.offHeapUsed = true;
+		table2.memtableOffHeapUsed = true;
+		table4.memtableOffHeapUsed = true;
+		table6.memtableOffHeapUsed = true;
+		table2.bloomFilterOffHeapUsed = true;
+		table4.bloomFilterOffHeapUsed = true;
+		table6.bloomFilterOffHeapUsed = true;
+		// offheap memory total: 4 > 2 > 6 > 1 = 3 = 5
+		table2.offHeapMemoryUsedTotal = "314159363";
+		table4.offHeapMemoryUsedTotal = "441213814";
+		table6.offHeapMemoryUsedTotal = "162470806";
+		// bloom filter offheap: 4 > 6 > 2 > 1 = 3 = 5
+		table2.bloomFilterOffHeapMemoryUsed = "98";
+		table4.bloomFilterOffHeapMemoryUsed = "299792458";
+		table6.bloomFilterOffHeapMemoryUsed = "667408";
+		// memtable offheap: 2 > 6 > 4 > 1 = 3 = 5
+		table2.memtableOffHeapMemoryUsed = "314159265";
+		table4.memtableOffHeapMemoryUsed = "141421356";
+		table6.memtableOffHeapMemoryUsed = "161803398";
 		// create test keyspaces from templates
 		testKeyspaces = new ArrayList<StatsKeyspace>();
 		StatsKeyspace keyspace1 = createStatsKeyspaceTemplate("keyspace1");
@@ -191,9 +217,11 @@ public class TableStatsTestBase {
 		testKeyspaces.add(keyspace2);
 		testKeyspaces.add(keyspace3);
 		// compute keyspace statistics from relevant table metrics
-		for (int i = 0; i < testKeyspaces.size(); i++) {
+		for (int i = 0; i < testKeyspaces.size(); i++)
+		{
 			StatsKeyspace ks = testKeyspaces.get(i);
-			for (StatsTable st : ks.tables) {
+			for (StatsTable st : ks.tables)
+			{
 				ks.readCount += st.localReadCount;
 				ks.writeCount += st.localWriteCount;
 				ks.pendingFlushes += (long) st.pendingFlushes;
@@ -247,9 +275,11 @@ public class TableStatsTestBase {
 		humanReadableKeyspaces.add(humanReadableKeyspace2);
 		humanReadableKeyspaces.add(humanReadableKeyspace3);
 		// compute human readable keyspace statistics from relevant table metrics
-		for (int i = 0; i < humanReadableKeyspaces.size(); i++) {
+		for (int i = 0; i < humanReadableKeyspaces.size(); i++)
+		{
 			StatsKeyspace ks = humanReadableKeyspaces.get(i);
-			for (StatsTable st : ks.tables) {
+			for (StatsTable st : ks.tables)
+			{
 				ks.readCount += st.localReadCount;
 				ks.writeCount += st.localWriteCount;
 				ks.pendingFlushes += (long) st.pendingFlushes;

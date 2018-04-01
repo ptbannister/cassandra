@@ -69,10 +69,12 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 1024\n" +
 		"\tSpace used by snapshots (total): 0\n" +
+		"\tOff heap memory used (total): 314159363\n" +
 		"\tSSTable Compression Ratio: -1.0\n" +
 		"\tNumber of partitions (estimate): 0\n" +
 		"\tMemtable cell count: 0\n" +
 		"\tMemtable data size: 900\n" +
+		"\tMemtable off heap memory used: 314159265\n" +
 		"\tMemtable switch count: 0\n" +
 		"\tLocal read count: 1\n" +
 		"\tLocal read latency: 3.000 ms\n" +
@@ -83,6 +85,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tBloom filter false positives: 600\n" +
 		"\tBloom filter false ratio: 0.01000\n" +
 		"\tBloom filter space used: 0\n" +
+		"\tBloom filter off heap memory used: 98\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
 		"\tCompacted partition mean bytes: 0\n" +
@@ -129,10 +132,12 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 256\n" +
 		"\tSpace used by snapshots (total): 0\n" +
+		"\tOff heap memory used (total): 441213814\n" +
 		"\tSSTable Compression Ratio: -1.0\n" +
 		"\tNumber of partitions (estimate): 0\n" +
 		"\tMemtable cell count: 0\n" +
 		"\tMemtable data size: 3000\n" +
+		"\tMemtable off heap memory used: 141421356\n" +
 		"\tMemtable switch count: 0\n" +
 		"\tLocal read count: 3\n" +
 		"\tLocal read latency: NaN ms\n" +
@@ -143,6 +148,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tBloom filter false positives: 500\n" +
 		"\tBloom filter false ratio: 0.02000\n" +
 		"\tBloom filter space used: 0\n" +
+		"\tBloom filter off heap memory used: 299792458\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
 		"\tCompacted partition mean bytes: 0\n" +
@@ -189,10 +195,12 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tSpace used (live): 0\n" +
 		"\tSpace used (total): 0\n" +
 		"\tSpace used by snapshots (total): 0\n" +
+		"\tOff heap memory used (total): 162470806\n" +
 		"\tSSTable Compression Ratio: -1.0\n" +
 		"\tNumber of partitions (estimate): 0\n" +
 		"\tMemtable cell count: 0\n" +
 		"\tMemtable data size: 1000000\n" +
+		"\tMemtable off heap memory used: 161803398\n" +
 		"\tMemtable switch count: 0\n" +
 		"\tLocal read count: 5\n" +
 		"\tLocal read latency: 1.000 ms\n" +
@@ -203,6 +211,7 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tBloom filter false positives: 400\n" +
 		"\tBloom filter false ratio: 0.03000\n" +
 		"\tBloom filter space used: 0\n" +
+		"\tBloom filter off heap memory used: 667408\n" +
 		"\tCompacted partition minimum bytes: 0\n" +
 		"\tCompacted partition maximum bytes: 0\n" +
 		"\tCompacted partition mean bytes: 0\n" +

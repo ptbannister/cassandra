@@ -99,9 +99,9 @@ public class StatsTableComparator implements Comparator
         else if (sortKey.equals("bloom_filter_off_heap_memory_used"))
         {
             if (stx.bloomFilterOffHeapUsed && !sty.bloomFilterOffHeapUsed)
-                return sign * -1;
+                return sign;
             else if (!stx.bloomFilterOffHeapUsed && sty.bloomFilterOffHeapUsed)
-                return sign * 1;
+                return sign * -1;
             else if (!stx.bloomFilterOffHeapUsed && !sty.bloomFilterOffHeapUsed)
                 return 0;
             long bloomFilterOffHeapX = humanReadable ?
@@ -140,9 +140,9 @@ public class StatsTableComparator implements Comparator
         else if (sortKey.equals("compression_metadata_off_heap_memory_used"))
         {
             if (stx.compressionMetadataOffHeapUsed && !sty.compressionMetadataOffHeapUsed)
-                return sign * -1;
+                return sign;
             else if (!stx.compressionMetadataOffHeapUsed && sty.compressionMetadataOffHeapUsed)
-                return sign * 1;
+                return sign * -1;
             else if (!stx.compressionMetadataOffHeapUsed && !sty.compressionMetadataOffHeapUsed)
                 return 0;
             long compressionMetadataOffHeapX = humanReadable ?
@@ -166,9 +166,9 @@ public class StatsTableComparator implements Comparator
         else if (sortKey.equals("index_summary_off_heap_memory_used"))
         {
             if (stx.indexSummaryOffHeapUsed && !sty.indexSummaryOffHeapUsed)
-                return sign * -1;
+                return sign;
             else if (!stx.indexSummaryOffHeapUsed && sty.indexSummaryOffHeapUsed)
-                return sign * 1;
+                return sign * -1;
             else if (!stx.indexSummaryOffHeapUsed && !sty.indexSummaryOffHeapUsed)
                 return 0;
             long indexSummaryOffHeapX = humanReadable ?
@@ -190,7 +190,7 @@ public class StatsTableComparator implements Comparator
             if (Double.isNaN(stx.localReadLatencyMs) && !Double.isNaN(sty.localReadLatencyMs))
                 return sign * -1;
             else if (!Double.isNaN(stx.localReadLatencyMs) && Double.isNaN(sty.localReadLatencyMs))
-                return sign * 1;
+                return sign;
             else if (Double.isNaN(stx.localReadLatencyMs) && Double.isNaN(sty.localReadLatencyMs))
                 return 0;
             else
@@ -210,7 +210,7 @@ public class StatsTableComparator implements Comparator
                 return sign * -1;
             else if (!Double.isNaN(stx.localWriteLatencyMs)
                  && Double.isNaN(sty.localWriteLatencyMs))
-                return sign * 1;
+                return sign;
             else if (Double.isNaN(stx.localWriteLatencyMs)
                  && Double.isNaN(sty.localWriteLatencyMs))
                 return 0;
@@ -246,9 +246,9 @@ public class StatsTableComparator implements Comparator
         else if (sortKey.equals("memtable_off_heap_memory_used"))
         {
             if (stx.memtableOffHeapUsed && !sty.memtableOffHeapUsed)
-                return sign * -1;
+                return sign;
             else if (!stx.memtableOffHeapUsed && sty.memtableOffHeapUsed)
-                return sign * 1;
+                return sign * -1;
             else if (!stx.memtableOffHeapUsed && !sty.memtableOffHeapUsed)
                 return 0;
             long memtableOffHeapX = humanReadable ?
@@ -272,9 +272,9 @@ public class StatsTableComparator implements Comparator
         else if (sortKey.equals("off_heap_memory_used_total"))
         {
             if (stx.offHeapUsed && !sty.offHeapUsed)
-                return sign * -1;
+                return sign;
             else if (!stx.offHeapUsed && sty.offHeapUsed)
-                return sign * 1;
+                return sign * -1;
             else if (!stx.offHeapUsed && !sty.offHeapUsed)
                 return 0;
             long offHeapTotalX = humanReadable ?
