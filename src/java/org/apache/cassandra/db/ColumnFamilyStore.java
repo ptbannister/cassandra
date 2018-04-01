@@ -213,7 +213,6 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
 
     public final TableMetrics metric;
     public volatile long sampleLatencyNanos;
-    private final ScheduledFuture<?> latencyCalculator;
 
     private final CassandraStreamManager streamManager;
 
@@ -441,35 +440,25 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
             {
                 throw new RuntimeException(e);
             }
-            logger.trace("retryPolicy for {} is {}", name, this.metadata.get().params.speculativeRetry);
-            latencyCalculator = ScheduledExecutors.optionalTasks.scheduleWithFixedDelay(new Runnable()
-            {
-                public void run()
-                {
-                    SpeculativeRetryParam retryPolicy = ColumnFamilyStore.this.metadata.get().params.speculativeRetry;
-                    switch (retryPolicy.kind())
-                    {
-                        case PERCENTILE:
-                            // get percentile in nanos
-                            sampleLatencyNanos = (long) (metric.coordinatorReadLatency.getSnapshot().getValue(retryPolicy.threshold()));
-                            break;
-                        case CUSTOM:
-                            sampleLatencyNanos = (long) retryPolicy.threshold();
-                            break;
-                        default:
-                            sampleLatencyNanos = Long.MAX_VALUE;
-                            break;
-                    }
-                }
-            }, DatabaseDescriptor.getReadRpcTimeout(), DatabaseDescriptor.getReadRpcTimeout(), TimeUnit.MILLISECONDS);
         }
         else
         {
-            latencyCalculator = ScheduledExecutors.optionalTasks.schedule(Runnables.doNothing(), 0, TimeUnit.NANOSECONDS);
             mbeanName = null;
             oldMBeanName= null;
         }
         streamManager = new CassandraStreamManager(this);
+    }
+
+    public void updateSpeculationThreshold()
+    {
+        try
+        {
+            sampleLatencyNanos = metadata().params.speculativeRetry.calculateThreshold(metric.coordinatorReadLatency);
+        }
+        catch (Throwable e)
+        {
+            logger.error("Exception caught while calculating speculative retry threshold for {}: {}", metadata(), e);
+        }
     }
 
     public TableStreamManager getStreamManager()
@@ -528,7 +517,6 @@ public class ColumnFamilyStore implements ColumnFamilyStoreMBean
             }
         }
 
-        latencyCalculator.cancel(false);
         compactionStrategyManager.shutdown();
         SystemKeyspace.removeTruncationRecord(metadata.id);
 
