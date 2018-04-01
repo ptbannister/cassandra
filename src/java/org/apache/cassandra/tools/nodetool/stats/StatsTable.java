@@ -23,6 +23,7 @@ import java.util.List;
 
 public class StatsTable
 {
+	public String fullName;
     public String keyspaceName;
     public String tableName;
     public boolean isIndex;

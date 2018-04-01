@@ -65,6 +65,7 @@ public class TableStatsTestBase
 	private static StatsTable createStatsTableTemplate(String keyspaceName, String tableName)
 	{
 		StatsTable template = new StatsTable();
+		template.fullName = keyspaceName + "." + tableName;
 		template.keyspaceName = new String(keyspaceName);
 		template.tableName = new String(tableName);
 		template.isIndex = false;
@@ -72,7 +73,7 @@ public class TableStatsTestBase
 		template.spaceUsedLive = "0";
 		template.spaceUsedTotal = "0";
 		template.spaceUsedBySnapshotsTotal = "0";
-		template.percentRepaired = 100.0D;
+		template.percentRepaired = 1.0D;
 		template.bytesRepaired = 0L;
 		template.bytesUnrepaired = 0L;
 		template.bytesPendingRepair = 0L;
@@ -115,55 +116,20 @@ public class TableStatsTestBase
 		StatsTable table4 = createStatsTableTemplate("keyspace2", "table4");
 		StatsTable table5 = createStatsTableTemplate("keyspace2", "table5");
 		StatsTable table6 = createStatsTableTemplate("keyspace3", "table6");
-		// reads: 6 > 5 > 4 > 3 > 2 > 1
-		table1.localReadCount = 0L;
-		table2.localReadCount = 1L;
-		table3.localReadCount = 2L;
-		table4.localReadCount = 3L;
-		table5.localReadCount = 4L;
-		table6.localReadCount = 5L;
-		// writes: 1 > 2 > 3 > 4 > 5 > 6
-		table1.localWriteCount = 5L;
-		table2.localWriteCount = 4L;
-		table3.localWriteCount = 3L;
-		table4.localWriteCount = 2L;
-		table5.localWriteCount = 1L;
-		table6.localWriteCount = 0L;
-		// read latency: 3 > 2 > 1 > 6 > 5 > 4
-		table1.localReadLatencyMs = 2D;
-		table2.localReadLatencyMs = 3D;
-		table3.localReadLatencyMs = 4D;
-		table4.localReadLatencyMs = Double.NaN;
-		table5.localReadLatencyMs = 0D;
-		table6.localReadLatencyMs = 1D;
-		// write latency: 4 > 5 > 6 > 1 > 2 > 3
-		table1.localWriteLatencyMs = 0.05D;
-		table2.localWriteLatencyMs = 0D;
-		table3.localWriteLatencyMs = Double.NaN;
-		table4.localWriteLatencyMs = 2D;
-		table5.localWriteLatencyMs = 1D;
-		table6.localWriteLatencyMs = 0.5D;
-		// space used total: 1 > 2 > 3 > 4 > 5 > 6
-		table1.spaceUsedTotal = "9001";
-		table2.spaceUsedTotal = "1024";
-		table3.spaceUsedTotal = "512";
-		table4.spaceUsedTotal = "256";
-		table5.spaceUsedTotal = "64";
-		table6.spaceUsedTotal = "0";
-		// memtable data size: 6 > 5 > 4 > 3 > 2 > 1
-		table1.memtableDataSize = "0";
-		table2.memtableDataSize = "900";
-		table3.memtableDataSize = "1999";
-		table4.memtableDataSize = "3000";
-		table5.memtableDataSize = "20000";
-		table6.memtableDataSize = "1000000";
-		// sstable count: 1 > 3 > 5 > 2 > 4 > 6
-		table1.sstableCount = (Object) 60000;
-		table2.sstableCount = (Object) 3000;
-		table3.sstableCount = (Object) 50000;
-		table4.sstableCount = (Object) 2000;
-		table5.sstableCount = (Object) 40000;
-		table6.sstableCount = (Object) 1000;
+		// average live cells: 1 > 6 > 2 > 5 > 3 > 4
+		table1.averageLiveCellsPerSliceLastFiveMinutes = 6D;
+		table2.averageLiveCellsPerSliceLastFiveMinutes = 4.01D;
+		table3.averageLiveCellsPerSliceLastFiveMinutes = 0D;
+		table4.averageLiveCellsPerSliceLastFiveMinutes = Double.NaN;
+		table5.averageLiveCellsPerSliceLastFiveMinutes = 4D;
+		table6.averageLiveCellsPerSliceLastFiveMinutes = 5D;
+		// average tombstones: 6 > 1 > 5 > 2 > 3 > 4
+		table1.averageTombstonesPerSliceLastFiveMinutes = 5D;
+		table2.averageTombstonesPerSliceLastFiveMinutes = 4.001D;
+		table3.averageTombstonesPerSliceLastFiveMinutes = Double.NaN; 
+		table4.averageTombstonesPerSliceLastFiveMinutes = 0D;
+		table5.averageTombstonesPerSliceLastFiveMinutes = 4.01D;
+		table6.averageTombstonesPerSliceLastFiveMinutes = 6D;
 		// bloom filter false positives: 2 > 4 > 6 > 1 > 3 > 5
 		table1.bloomFilterFalsePositives = (Object) 30L;
 		table2.bloomFilterFalsePositives = (Object) 600L;
@@ -178,6 +144,97 @@ public class TableStatsTestBase
 		table4.bloomFilterFalseRatio = (Object) 0.02D;
 		table5.bloomFilterFalseRatio = (Object) 0.60D;
 		table6.bloomFilterFalseRatio = (Object) 0.03D;
+		// compacted partition maximum bytes: 1 > 3 > 5 > 2 > 4 = 6 
+		table1.compactedPartitionMaximumBytes = 60L;
+		table2.compactedPartitionMaximumBytes = 30L;
+		table3.compactedPartitionMaximumBytes = 50L;
+		table4.compactedPartitionMaximumBytes = 20L;
+		table5.compactedPartitionMaximumBytes = 40L;
+		table6.compactedPartitionMaximumBytes = 20L;
+		// compacted partition mean bytes: 1 > 3 > 2 = 4 = 5 > 6
+		table1.compactedPartitionMeanBytes = 6L;
+		table2.compactedPartitionMeanBytes = 4L;
+		table3.compactedPartitionMeanBytes = 5L;
+		table4.compactedPartitionMeanBytes = 4L;
+		table5.compactedPartitionMeanBytes = 4L;
+		table6.compactedPartitionMeanBytes = 3L;
+		// compacted partition minimum bytes: 6 > 4 > 2 > 5 > 1 = 3
+		table1.compactedPartitionMinimumBytes = 2L;
+		table2.compactedPartitionMinimumBytes = 4L;
+		table3.compactedPartitionMinimumBytes = 2L;
+		table4.compactedPartitionMinimumBytes = 5L;
+		table5.compactedPartitionMinimumBytes = 3L;
+		table6.compactedPartitionMinimumBytes = 6L;
+		// local reads: 6 > 5 > 4 > 3 > 2 > 1
+		table1.localReadCount = 0L;
+		table2.localReadCount = 1L;
+		table3.localReadCount = 2L;
+		table4.localReadCount = 3L;
+		table5.localReadCount = 4L;
+		table6.localReadCount = 5L;
+		// local read latency: 3 > 2 > 1 > 6 > 4 > 5
+		table1.localReadLatencyMs = 2D;
+		table2.localReadLatencyMs = 3D;
+		table3.localReadLatencyMs = 4D;
+		table4.localReadLatencyMs = Double.NaN;
+		table5.localReadLatencyMs = 0D;
+		table6.localReadLatencyMs = 1D;
+		// local writes: 1 > 2 > 3 > 4 > 5 > 6
+		table1.localWriteCount = 5L;
+		table2.localWriteCount = 4L;
+		table3.localWriteCount = 3L;
+		table4.localWriteCount = 2L;
+		table5.localWriteCount = 1L;
+		table6.localWriteCount = 0L;
+		// local write latency: 4 > 5 > 6 > 1 > 2 > 3
+		table1.localWriteLatencyMs = 0.05D;
+		table2.localWriteLatencyMs = 0D;
+		table3.localWriteLatencyMs = Double.NaN;
+		table4.localWriteLatencyMs = 2D;
+		table5.localWriteLatencyMs = 1D;
+		table6.localWriteLatencyMs = 0.5D;
+		// maximum live cells last five minutes: 1 > 2 = 3 > 4 = 5 > 6
+		table1.maximumLiveCellsPerSliceLastFiveMinutes = 6L;
+		table2.maximumLiveCellsPerSliceLastFiveMinutes = 5L;
+		table3.maximumLiveCellsPerSliceLastFiveMinutes = 5L;
+		table4.maximumLiveCellsPerSliceLastFiveMinutes = 3L;
+		table5.maximumLiveCellsPerSliceLastFiveMinutes = 3L;
+		table6.maximumLiveCellsPerSliceLastFiveMinutes = 2L;
+		// maximum tombstones last five minutes: 6 > 5 > 3 = 4 > 2 > 1
+		table1.maximumTombstonesPerSliceLastFiveMinutes = 1L;
+		table2.maximumTombstonesPerSliceLastFiveMinutes = 2L;
+		table3.maximumTombstonesPerSliceLastFiveMinutes = 3L;
+		table4.maximumTombstonesPerSliceLastFiveMinutes = 3L;
+		table5.maximumTombstonesPerSliceLastFiveMinutes = 5L;
+		table6.maximumTombstonesPerSliceLastFiveMinutes = 6L;
+		// memtable data size: 6 > 5 > 4 > 3 > 2 > 1
+		table1.memtableDataSize = "0";
+		table2.memtableDataSize = "900";
+		table3.memtableDataSize = "1999";
+		table4.memtableDataSize = "3000";
+		table5.memtableDataSize = "20000";
+		table6.memtableDataSize = "1000000";
+		// percent repaired: 1 > 2 > 3 > 5 > 4 > 6
+		table1.percentRepaired = 100.0D;
+		table2.percentRepaired = 99.9D;
+		table3.percentRepaired = 99.8D;
+		table4.percentRepaired = 50.0D;
+		table5.percentRepaired = 93.0D;
+		table6.percentRepaired = 0.0D;
+		// space used total: 1 > 2 > 3 > 4 > 5 > 6
+		table1.spaceUsedTotal = "9001";
+		table2.spaceUsedTotal = "1024";
+		table3.spaceUsedTotal = "512";
+		table4.spaceUsedTotal = "256";
+		table5.spaceUsedTotal = "64";
+		table6.spaceUsedTotal = "0";
+		// sstable count: 1 > 3 > 5 > 2 > 4 > 6
+		table1.sstableCount = (Object) 60000;
+		table2.sstableCount = (Object) 3000;
+		table3.sstableCount = (Object) 50000;
+		table4.sstableCount = (Object) 2000;
+		table5.sstableCount = (Object) 40000;
+		table6.sstableCount = (Object) 1000;
 		// set even numbered tables to have some offheap usage
 		table2.offHeapUsed = true;
 		table4.offHeapUsed = true;

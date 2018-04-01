@@ -205,6 +205,7 @@ public class TableStatsHolder implements StatsHolder
             {
                 String tableName = table.getTableName();
                 StatsTable statsTable = new StatsTable();
+				statsTable.fullName = keyspaceName + "." + tableName;
                 statsTable.keyspaceName = keyspaceName;
                 statsTable.tableName = tableName;
                 statsTable.isIndex = tableName.contains(".");

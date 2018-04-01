@@ -60,41 +60,71 @@ public class StatsTableComparator implements Comparator
         this.ascending = ascending;
     }
 
+	/**
+	 * Compare stats represented as doubles
+	 */
+	private int compareDoubles(double x, double y)
+	{
+		int sign = ascending ? 1 : -1;
+		if (Double.isNaN(x) && !Double.isNaN(y))
+			return sign * Double.valueOf(0D).compareTo(Double.valueOf(y));
+		else if (!Double.isNaN(x) && Double.isNaN(y))
+			return sign * Double.valueOf(x).compareTo(Double.valueOf(0D));
+		else if (Double.isNaN(x) && Double.isNaN(y))
+			return 0;
+		else
+			return sign * Double.valueOf(x).compareTo(Double.valueOf(y));
+	}
+
+	/**
+	 * Compare file size stats represented as strings
+	 */
+	private int compareFileSizes(String x, String y)
+	{
+		int sign = ascending ? 1 : -1;
+		if (null == x && null != y)
+			return sign * -1;
+		else if (null != x && null == y)
+			return sign;
+		else if (null == x && null == y)
+			return 0;
+		long sizeX = humanReadable ? FileUtils.parseFileSize(x) : Long.valueOf(x);
+		long sizeY = humanReadable ? FileUtils.parseFileSize(y) : Long.valueOf(y);
+        return sign * Long.compare(sizeX, sizeY);
+	}
+
     /**
      * Compare StatsTable instances based on this instance's sortKey.
      */
     public int compare(Object x, Object y)
     {
         if (!(x instanceof StatsTable && y instanceof StatsTable))
-        {
             throw new ClassCastException(String.format("StatsTableComparator cannot compare %s and %s", x.getClass().toString(), y.getClass().toString()));
-        }
         if (x == null || y == null)
-        {
             throw new NullPointerException("StatsTableComparator cannot compare null objects");
-        }
         StatsTable stx = (StatsTable) x;
         StatsTable sty = (StatsTable) y;
         int sign = ascending ? 1 : -1;
-        if (sortKey.equals("average_live_cells_per_slice_last_five_minuites"))
+		int result = 0;
+        if (sortKey.equals("average_live_cells_per_slice_last_five_minutes"))
         {
-            return sign * Double.valueOf(stx.averageLiveCellsPerSliceLastFiveMinutes)
-                .compareTo(Double.valueOf(sty.averageLiveCellsPerSliceLastFiveMinutes));
+            result = compareDoubles(stx.averageLiveCellsPerSliceLastFiveMinutes,
+                sty.averageLiveCellsPerSliceLastFiveMinutes);
         }
         else if (sortKey.equals("average_tombstones_per_slice_last_five_minutes"))
         {
-            return sign * Double.valueOf(stx.averageTombstonesPerSliceLastFiveMinutes)
-                .compareTo(Double.valueOf(sty.averageTombstonesPerSliceLastFiveMinutes));
+            result = compareDoubles(stx.averageTombstonesPerSliceLastFiveMinutes,
+                sty.averageTombstonesPerSliceLastFiveMinutes);
         }
         else if (sortKey.equals("bloom_filter_false_positives"))
         {
-            return sign * ((Long) stx.bloomFilterFalsePositives)
+            result = sign * ((Long) stx.bloomFilterFalsePositives)
                 .compareTo((Long) sty.bloomFilterFalsePositives);
         }
         else if (sortKey.equals("bloom_filter_false_ratio"))
         {
-            return sign * ((Double) stx.bloomFilterFalseRatio)
-                .compareTo((Double) sty.bloomFilterFalseRatio);
+			result = compareDoubles((Double) stx.bloomFilterFalseRatio,
+				(Double) sty.bloomFilterFalseRatio);
         }
         else if (sortKey.equals("bloom_filter_off_heap_memory_used"))
         {
@@ -103,38 +133,31 @@ public class StatsTableComparator implements Comparator
             else if (!stx.bloomFilterOffHeapUsed && sty.bloomFilterOffHeapUsed)
                 return sign * -1;
             else if (!stx.bloomFilterOffHeapUsed && !sty.bloomFilterOffHeapUsed)
-                return 0;
-            long bloomFilterOffHeapX = humanReadable ?
-                FileUtils.parseFileSize(stx.bloomFilterOffHeapMemoryUsed)
-                : Long.valueOf(stx.bloomFilterOffHeapMemoryUsed);
-            long bloomFilterOffHeapY = humanReadable ?
-                FileUtils.parseFileSize(sty.bloomFilterOffHeapMemoryUsed)
-                : Long.valueOf(sty.bloomFilterOffHeapMemoryUsed);
-            return sign * Long.compare(bloomFilterOffHeapX, bloomFilterOffHeapY);
+                result = 0;
+			else
+			{
+            	result = compareFileSizes(stx.bloomFilterOffHeapMemoryUsed,
+					sty.bloomFilterOffHeapMemoryUsed);
+			}
         }
         else if (sortKey.equals("bloom_filter_space_used"))
         {
-            long bloomFilterSpaceUsedX = humanReadable ?
-                FileUtils.parseFileSize(stx.bloomFilterSpaceUsed)
-                : Long.valueOf(stx.bloomFilterSpaceUsed);
-            long bloomFilterSpaceUsedY = humanReadable ?
-                FileUtils.parseFileSize(sty.bloomFilterSpaceUsed)
-                : Long.valueOf(sty.bloomFilterSpaceUsed);
-            return sign * Long.compare(bloomFilterSpaceUsedX, bloomFilterSpaceUsedY);
+            result = compareFileSizes(stx.bloomFilterSpaceUsed,
+				sty.bloomFilterSpaceUsed);
         }
         else if (sortKey.equals("compacted_partition_maximum_bytes"))
         {
-            return sign * Long.valueOf(stx.compactedPartitionMaximumBytes)
+            result = sign * Long.valueOf(stx.compactedPartitionMaximumBytes)
                 .compareTo(Long.valueOf(sty.compactedPartitionMaximumBytes));
         }
         else if (sortKey.equals("compacted_partition_mean_bytes"))
         {
-            return sign * Long.valueOf(stx.compactedPartitionMeanBytes)
+            result = sign * Long.valueOf(stx.compactedPartitionMeanBytes)
                 .compareTo(Long.valueOf(sty.compactedPartitionMeanBytes));
         }
         else if (sortKey.equals("compacted_partition_minimum_bytes"))
         {
-            return sign * Long.valueOf(stx.compactedPartitionMinimumBytes)
+            result = sign * Long.valueOf(stx.compactedPartitionMinimumBytes)
                 .compareTo(Long.valueOf(sty.compactedPartitionMinimumBytes));
         }
         else if (sortKey.equals("compression_metadata_off_heap_memory_used"))
@@ -144,24 +167,16 @@ public class StatsTableComparator implements Comparator
             else if (!stx.compressionMetadataOffHeapUsed && sty.compressionMetadataOffHeapUsed)
                 return sign * -1;
             else if (!stx.compressionMetadataOffHeapUsed && !sty.compressionMetadataOffHeapUsed)
-                return 0;
-            long compressionMetadataOffHeapX = humanReadable ?
-                FileUtils.parseFileSize(stx.compressionMetadataOffHeapMemoryUsed)
-                : Long.valueOf(stx.compressionMetadataOffHeapMemoryUsed);
-            long compressionMetadataOffHeapY = humanReadable ?
-                FileUtils.parseFileSize(sty.compressionMetadataOffHeapMemoryUsed)
-                : Long.valueOf(sty.compressionMetadataOffHeapMemoryUsed);
-            return sign * Long.compare(compressionMetadataOffHeapX, compressionMetadataOffHeapY);
+                result = 0;
+			else
+			{
+				result = compareFileSizes(stx.compressionMetadataOffHeapMemoryUsed,
+					sty.compressionMetadataOffHeapMemoryUsed);
+			}
         }
         else if (sortKey.equals("dropped_mutations"))
         {
-            long droppedMutationsX = humanReadable ?
-                FileUtils.parseFileSize(stx.droppedMutations)
-                : Long.valueOf(stx.droppedMutations);
-            long droppedMutationsY = humanReadable ?
-                FileUtils.parseFileSize(sty.droppedMutations)
-                : Long.valueOf(sty.droppedMutations);
-            return sign * Long.compare(droppedMutationsX, droppedMutationsY);
+			result = compareFileSizes(stx.droppedMutations, sty.droppedMutations);
         }
         else if (sortKey.equals("index_summary_off_heap_memory_used"))
         {
@@ -170,78 +185,49 @@ public class StatsTableComparator implements Comparator
             else if (!stx.indexSummaryOffHeapUsed && sty.indexSummaryOffHeapUsed)
                 return sign * -1;
             else if (!stx.indexSummaryOffHeapUsed && !sty.indexSummaryOffHeapUsed)
-                return 0;
-            long indexSummaryOffHeapX = humanReadable ?
-                FileUtils.parseFileSize(stx.indexSummaryOffHeapMemoryUsed)
-                : Long.valueOf(stx.indexSummaryOffHeapMemoryUsed);
-            long indexSummaryOffHeapY = humanReadable ?
-                FileUtils.parseFileSize(sty.indexSummaryOffHeapMemoryUsed)
-                : Long.valueOf(sty.indexSummaryOffHeapMemoryUsed);
-            return sign * Long.compare(indexSummaryOffHeapX, indexSummaryOffHeapY);
+                result = 0;
+			else
+			{
+				result = compareFileSizes(stx.indexSummaryOffHeapMemoryUsed,
+					sty.indexSummaryOffHeapMemoryUsed);
+			}
         }
         else if (sortKey.equals("local_read_count") || sortKey.equals("reads"))
         {
-            return sign * Long.valueOf(stx.localReadCount)
+            result = sign * Long.valueOf(stx.localReadCount)
                 .compareTo(Long.valueOf(sty.localReadCount));
         }
         else if (sortKey.equals("local_read_latency_ms") || sortKey.equals("read_latency"))
         {
-            // Double.NaN means read latency of zero, rather than its usual meaning of infinity
-            if (Double.isNaN(stx.localReadLatencyMs) && !Double.isNaN(sty.localReadLatencyMs))
-                return sign * -1;
-            else if (!Double.isNaN(stx.localReadLatencyMs) && Double.isNaN(sty.localReadLatencyMs))
-                return sign;
-            else if (Double.isNaN(stx.localReadLatencyMs) && Double.isNaN(sty.localReadLatencyMs))
-                return 0;
-            else
-                return sign * Double.valueOf(stx.localReadLatencyMs)
-                    .compareTo(Double.valueOf(sty.localReadLatencyMs));
+			result = compareDoubles(stx.localReadLatencyMs, sty.localReadLatencyMs);
         }
         else if (sortKey.equals("local_write_count") || sortKey.equals("writes"))
         {
-            return sign * Long.valueOf(stx.localWriteCount)
+            result = sign * Long.valueOf(stx.localWriteCount)
                 .compareTo(Long.valueOf(sty.localWriteCount));
         }
         else if (sortKey.equals("local_write_latency_ms") || sortKey.equals("write_latency"))
         {
-            // Double.NaN means write latency of zero, rather than its usual meaning of infinity
-            if (Double.isNaN(stx.localWriteLatencyMs)
-                && !Double.isNaN(sty.localWriteLatencyMs))
-                return sign * -1;
-            else if (!Double.isNaN(stx.localWriteLatencyMs)
-                 && Double.isNaN(sty.localWriteLatencyMs))
-                return sign;
-            else if (Double.isNaN(stx.localWriteLatencyMs)
-                 && Double.isNaN(sty.localWriteLatencyMs))
-                return 0;
-            else
-                return sign * Double.valueOf(stx.localWriteLatencyMs)
-                    .compareTo(Double.valueOf(sty.localWriteLatencyMs));
+			result = compareDoubles(stx.localWriteLatencyMs, sty.localWriteLatencyMs);
         }
         else if (sortKey.equals("maximum_live_cells_per_slice_last_five_minutes"))
         {
-            return sign * Long.valueOf(stx.maximumLiveCellsPerSliceLastFiveMinutes)
+            result = sign * Long.valueOf(stx.maximumLiveCellsPerSliceLastFiveMinutes)
                 .compareTo(Long.valueOf(sty.maximumLiveCellsPerSliceLastFiveMinutes));
         }
         else if (sortKey.equals("maximum_tombstones_per_slice_last_five_minutes"))
         {
-            return sign * Long.valueOf(stx.maximumTombstonesPerSliceLastFiveMinutes)
+            result = sign * Long.valueOf(stx.maximumTombstonesPerSliceLastFiveMinutes)
                 .compareTo(Long.valueOf(sty.maximumTombstonesPerSliceLastFiveMinutes));
         }
         else if (sortKey.equals("memtable_cell_count"))
         {
-            return sign * ((Long) stx.memtableCellCount)
+            result = sign * ((Long) stx.memtableCellCount)
                 .compareTo((Long) sty.memtableCellCount); 
         }
         else if (sortKey.equals("memtable_data_size"))
         {
-            long memtableDataSizeX = humanReadable ?
-                FileUtils.parseFileSize(stx.memtableDataSize)
-                : Long.valueOf(stx.memtableDataSize);
-            long memtableDataSizeY = humanReadable ?
-                FileUtils.parseFileSize(sty.memtableDataSize)
-                : Long.valueOf(sty.memtableDataSize);
-            return sign * Long.compare(memtableDataSizeX, memtableDataSizeY);
+			result = compareFileSizes(stx.memtableDataSize, sty.memtableDataSize);
         }
         else if (sortKey.equals("memtable_off_heap_memory_used"))
         {
@@ -250,23 +236,21 @@ public class StatsTableComparator implements Comparator
             else if (!stx.memtableOffHeapUsed && sty.memtableOffHeapUsed)
                 return sign * -1;
             else if (!stx.memtableOffHeapUsed && !sty.memtableOffHeapUsed)
-                return 0;
-            long memtableOffHeapX = humanReadable ?
-                FileUtils.parseFileSize(stx.memtableOffHeapMemoryUsed)
-                : Long.valueOf(stx.memtableOffHeapMemoryUsed);
-            long memtableOffHeapY = humanReadable ?
-                FileUtils.parseFileSize(sty.memtableOffHeapMemoryUsed)
-                : Long.valueOf(sty.memtableOffHeapMemoryUsed);
-            return sign * Long.compare(memtableOffHeapX, memtableOffHeapY);
+                result = 0;
+			else
+			{
+				result = compareFileSizes(stx.memtableOffHeapMemoryUsed,
+					sty.memtableOffHeapMemoryUsed);
+			}
         }
         else if (sortKey.equals("memtable_switch_count"))
         {
-            return sign * ((Long) stx.memtableSwitchCount)
+            result = sign * ((Long) stx.memtableSwitchCount)
                 .compareTo((Long) sty.memtableSwitchCount); 
         }
         else if (sortKey.equals("number_of_partitions_estimate"))
         {
-            return sign * ((Long) stx.numberOfPartitionsEstimate)
+            result = sign * ((Long) stx.numberOfPartitionsEstimate)
                 .compareTo((Long) sty.numberOfPartitionsEstimate);
         }
         else if (sortKey.equals("off_heap_memory_used_total"))
@@ -276,68 +260,49 @@ public class StatsTableComparator implements Comparator
             else if (!stx.offHeapUsed && sty.offHeapUsed)
                 return sign * -1;
             else if (!stx.offHeapUsed && !sty.offHeapUsed)
-                return 0;
-            long offHeapTotalX = humanReadable ?
-                FileUtils.parseFileSize(stx.offHeapMemoryUsedTotal)
-                : Long.valueOf(stx.offHeapMemoryUsedTotal);
-            long offHeapTotalY = humanReadable ?
-                FileUtils.parseFileSize(sty.offHeapMemoryUsedTotal)
-                : Long.valueOf(sty.offHeapMemoryUsedTotal);
-            return sign * Long.compare(offHeapTotalX, offHeapTotalY);
+                result = 0;
+			else
+			{
+				result = compareFileSizes(stx.offHeapMemoryUsedTotal,
+					sty.offHeapMemoryUsedTotal);
+			}
         }
         else if (sortKey.equals("pending_flushes"))
         {
-            return sign * ((Long) stx.pendingFlushes)
+            result = sign * ((Long) stx.pendingFlushes)
                 .compareTo((Long) sty.pendingFlushes);
         }
         else if (sortKey.equals("percent_repaired"))
         {
-            return sign * Double.valueOf(stx.percentRepaired)
-                .compareTo(Double.valueOf(sty.percentRepaired));
+            result = compareDoubles(stx.percentRepaired, sty.percentRepaired);
         }
         else if (sortKey.equals("space_used_by_snapshots_total"))
         {
-            long spaceUsedBySnapshotsX = humanReadable ?
-                FileUtils.parseFileSize(stx.spaceUsedBySnapshotsTotal)
-                : Long.valueOf(stx.spaceUsedBySnapshotsTotal);
-            long spaceUsedBySnapshotsY = humanReadable ?
-                FileUtils.parseFileSize(sty.spaceUsedBySnapshotsTotal)
-                : Long.valueOf(sty.spaceUsedBySnapshotsTotal);
-            return sign * Long.compare(spaceUsedBySnapshotsX, spaceUsedBySnapshotsY);
+			result = compareFileSizes(stx.spaceUsedBySnapshotsTotal,
+				sty.spaceUsedBySnapshotsTotal);
         }
         else if (sortKey.equals("space_used_live"))
         {
-            long spaceUsedLiveX = humanReadable ?
-                FileUtils.parseFileSize(stx.spaceUsedLive)
-                : Long.valueOf(stx.spaceUsedLive);
-            long spaceUsedLiveY = humanReadable ?
-                FileUtils.parseFileSize(sty.spaceUsedLive)
-                : Long.valueOf(sty.spaceUsedLive);
-            return sign * Long.compare(spaceUsedLiveX, spaceUsedLiveY);
+			result = compareFileSizes(stx.spaceUsedLive, sty.spaceUsedLive);
         }
         else if (sortKey.equals("space_used_total"))
         {
-            long spaceUsedTotalX = humanReadable ?
-                FileUtils.parseFileSize(stx.spaceUsedTotal)
-                : Long.valueOf(stx.spaceUsedTotal);
-            long spaceUsedTotalY = humanReadable ?
-                FileUtils.parseFileSize(sty.spaceUsedTotal)
-                : Long.valueOf(sty.spaceUsedTotal);
-            return sign * Long.compare(spaceUsedTotalX, spaceUsedTotalY);
+			result = compareFileSizes(stx.spaceUsedTotal, sty.spaceUsedTotal);
         }
         else if (sortKey.equals("sstable_compression_ratio"))
         {
-            return sign * ((Double) stx.sstableCompressionRatio)
-                .compareTo((Double) sty.sstableCompressionRatio);
+			result = compareDoubles((Double) stx.sstableCompressionRatio,
+				(Double) sty.sstableCompressionRatio);
         }
         else if (sortKey.equals("sstable_count"))
         {
-            return sign * ((Integer) stx.sstableCount)
+            result = sign * ((Integer) stx.sstableCount)
                 .compareTo((Integer) sty.sstableCount);
         }
         else
         {
             throw new IllegalStateException(String.format("Unsupported sort key: %s", sortKey));
         }
+		return (result == 0) ? stx.fullName.compareTo(sty.fullName) : result;
     }
 }
