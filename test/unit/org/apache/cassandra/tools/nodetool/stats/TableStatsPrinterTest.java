@@ -53,13 +53,13 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tBloom filter false positives: 30\n" +
 		"\tBloom filter false ratio: 0.40000\n" +
 		"\tBloom filter space used: 0\n" +
-		"\tCompacted partition minimum bytes: 0\n" +
-		"\tCompacted partition maximum bytes: 0\n" +
-		"\tCompacted partition mean bytes: 0\n" +
-		"\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tCompacted partition minimum bytes: 2\n" +
+		"\tCompacted partition maximum bytes: 60\n" +
+		"\tCompacted partition mean bytes: 6\n" +
+		"\tAverage live cells per slice (last five minutes): 6.00\n" +
+		"\tMaximum live cells per slice (last five minutes): 6\n" +
+		"\tAverage tombstones per slice (last five minutes): 5.00\n" +
+		"\tMaximum tombstones per slice (last five minutes): 1\n" +
 		"\tDropped Mutations: 0\n" +
 		"\n";
 
@@ -86,13 +86,13 @@ public class TableStatsPrinterTest extends TableStatsTestBase {
 		"\tBloom filter false ratio: 0.01000\n" +
 		"\tBloom filter space used: 0\n" +
 		"\tBloom filter off heap memory used: 98\n" +
-		"\tCompacted partition minimum bytes: 0\n" +
-		"\tCompacted partition maximum bytes: 0\n" +
-		"\tCompacted partition mean bytes: 0\n" +
-		"\tAverage live cells per slice (last five minutes): NaN\n" +
-		"\tMaximum live cells per slice (last five minutes): 0\n" +
-		"\tAverage tombstones per slice (last five minutes): NaN\n" +
-		"\tMaximum tombstones per slice (last five minutes): 0\n" +
+		"\tCompacted partition minimum bytes: 4\n" +
+		"\tCompacted partition maximum bytes: 30\n" +
+		"\tCompacted partition mean bytes: 4\n" +
+		"\tAverage live cells per slice (last five minutes): 4.01\n" +
+		"\tMaximum live cells per slice (last five minutes): 5\n" + 
+		"\tAverage tombstones per slice (last five minutes): 5.00\n" +
+		"\tMaximum tombstones per slice (last five minutes): 20\n" +
 		"\tDropped Mutations: 0\n" +
 		"\n";
 

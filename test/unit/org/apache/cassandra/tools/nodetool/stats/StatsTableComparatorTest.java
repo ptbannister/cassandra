@@ -149,11 +149,31 @@ public class StatsTableComparatorTest extends TableStatsTestBase {
 			"bloom_filter_false_ratio",
 			"table5 > table3 > table1 > table6 > table4 > table2",
 			false);
-		// memtable cell count
-		// memtable switch count
-		// number of partitions estimate
-		// pending flushes
-		// sstable compression ratio
+		// memtable cell count: 3 > 5 > 6 > 1 > 2 > 4
+		runCompareTest(testTables,
+			"memtable_cell_count",
+			"table3 > table5 > table6 > table1 > table2 > table4",
+			false);
+		// memtable switch count: 4 > 2 > 3 > 6 > 5 > 1
+		runCompareTest(testTables,
+			"memtable_switch_count",
+			"table4 > table2 > table3 > table6 > table5 > table1",
+			false);
+		// number of partitions estimate: 1 > 2 > 3 > 4 > 5 > 6
+		runCompareTest(testTables,
+			"number_of_partitions_estimate",
+			"table1 > table2 > table3 > table4 > table5 > table6",
+			false);
+		// pending flushes: 2 > 1 > 4 > 3 > 6 > 5
+		runCompareTest(testTables,
+			"pending_flushes",
+			"table2 > table1 > table4 > table3 > table6 > table5",
+			false);
+		// sstable compression ratio: 5 > 4 > 1 = 2 = 6 > 3
+		runCompareTest(testTables,
+			"sstable_compression_ratio",
+			"table5 > table4 > table1 > table2 > table6 > table3",
+			false);
         // sstable count: 1 > 3 > 5 > 2 > 4 > 6
 		runCompareTest(testTables,
 			"sstable_count",

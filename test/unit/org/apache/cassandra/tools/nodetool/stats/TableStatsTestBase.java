@@ -221,6 +221,13 @@ public class TableStatsTestBase
 		table4.maximumTombstonesPerSliceLastFiveMinutes = 3L;
 		table5.maximumTombstonesPerSliceLastFiveMinutes = 5L;
 		table6.maximumTombstonesPerSliceLastFiveMinutes = 6L;
+		// memtable cell count: 3 > 5 > 6 > 1 > 2 > 4
+		table1.memtableCellCount = (Object) 111L;
+		table2.memtableCellCount = (Object) 22L;
+		table3.memtableCellCount = (Object) 333333L;
+		table4.memtableCellCount = (Object) 4L;
+		table5.memtableCellCount = (Object) 55555L;
+		table6.memtableCellCount = (Object) 6666L;
 		// memtable data size: 6 > 5 > 4 > 3 > 2 > 1
 		table1.memtableDataSize = "0";
 		table2.memtableDataSize = "900";
@@ -228,6 +235,27 @@ public class TableStatsTestBase
 		table4.memtableDataSize = "3000";
 		table5.memtableDataSize = "20000";
 		table6.memtableDataSize = "1000000";
+		// memtable switch count: 4 > 2 > 3 > 6 > 5 > 1
+		table1.memtableSwitchCount = (Object) 1L;
+		table2.memtableSwitchCount = (Object) 22222L;
+		table3.memtableSwitchCount = (Object) 3333L;
+		table4.memtableSwitchCount = (Object) 444444L;
+		table5.memtableSwitchCount = (Object) 5L;
+		table6.memtableSwitchCount = (Object) 6L;
+		// number of partitions estimate: 1 > 2 > 3 > 4 > 5 > 6
+		table1.numberOfPartitionsEstimate = (Object) 111111L;
+		table2.numberOfPartitionsEstimate = (Object) 22222L;
+		table3.numberOfPartitionsEstimate = (Object) 3333L;
+		table4.numberOfPartitionsEstimate = (Object) 444L;
+		table5.numberOfPartitionsEstimate = (Object) 55L;
+		table6.numberOfPartitionsEstimate = (Object) 6L;
+		// pending flushes: 2 > 1 > 4 > 3 > 6 > 5
+		table1.pendingFlushes = (Object) 11111L;
+		table2.pendingFlushes = (Object) 222222L;
+		table3.pendingFlushes = (Object) 333L;
+		table4.pendingFlushes = (Object) 4444L;
+		table5.pendingFlushes = (Object) 5L;
+		table6.pendingFlushes = (Object) 66L;
 		// percent repaired: 1 > 2 > 3 > 5 > 4 > 6
 		table1.percentRepaired = 100.0D;
 		table2.percentRepaired = 99.9D;
@@ -256,6 +284,13 @@ public class TableStatsTestBase
 		table4.spaceUsedTotal = "256";
 		table5.spaceUsedTotal = "64";
 		table6.spaceUsedTotal = "0";
+		// sstable compression ratio: 5 > 4 > 1 = 2 = 6 > 3
+		table1.sstableCompressionRatio = (Object) 0.68D;
+		table2.sstableCompressionRatio = (Object) 0.68D;
+		table3.sstableCompressionRatio = (Object) 0.32D;
+		table4.sstableCompressionRatio = (Object) 0.95D;
+		table5.sstableCompressionRatio = (Object) 0.99D;
+		table6.sstableCompressionRatio = (Object) 0.68D;
 		// sstable count: 1 > 3 > 5 > 2 > 4 > 6
 		table1.sstableCount = (Object) 60000;
 		table2.sstableCount = (Object) 3000;
