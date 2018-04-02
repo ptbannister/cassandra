@@ -144,6 +144,13 @@ public class TableStatsTestBase
 		table4.bloomFilterFalseRatio = (Object) 0.02D;
 		table5.bloomFilterFalseRatio = (Object) 0.60D;
 		table6.bloomFilterFalseRatio = (Object) 0.03D;
+		// bloom filter space used: 2 > 4 > 6 > 1 > 3 > 5
+		table1.bloomFilterSpaceUsed = "789";
+		table2.bloomFilterSpaceUsed = "161718";
+		table3.bloomFilterSpaceUsed = "456";
+		table4.bloomFilterSpaceUsed = "131415";
+		table5.bloomFilterSpaceUsed = "123";
+		table6.bloomFilterSpaceUsed = "101112";
 		// compacted partition maximum bytes: 1 > 3 > 5 > 2 > 4 = 6 
 		table1.compactedPartitionMaximumBytes = 60L;
 		table2.compactedPartitionMaximumBytes = 30L;
@@ -165,6 +172,13 @@ public class TableStatsTestBase
 		table4.compactedPartitionMinimumBytes = 5L;
 		table5.compactedPartitionMinimumBytes = 3L;
 		table6.compactedPartitionMinimumBytes = 6L;
+		// dropped mutations: 6 > 3 > 4 > 2 > 1 = 5
+		table1.droppedMutations = "0";
+		table2.droppedMutations = "222";
+		table3.droppedMutations = "33333";
+		table4.droppedMutations = "4444";
+		table5.droppedMutations = "0";
+		table6.droppedMutations = "666666";
 		// local reads: 6 > 5 > 4 > 3 > 2 > 1
 		table1.localReadCount = 0L;
 		table2.localReadCount = 1L;
@@ -221,6 +235,20 @@ public class TableStatsTestBase
 		table4.percentRepaired = 50.0D;
 		table5.percentRepaired = 93.0D;
 		table6.percentRepaired = 0.0D;
+		// space used by snapshots: 5 > 1 > 2 > 4 > 3 = 6
+		table1.spaceUsedBySnapshotsTotal = "1111";
+		table2.spaceUsedBySnapshotsTotal = "222";
+		table3.spaceUsedBySnapshotsTotal = "0";
+		table4.spaceUsedBySnapshotsTotal = "44";
+		table5.spaceUsedBySnapshotsTotal = "55555";
+		table6.spaceUsedBySnapshotsTotal = "0";
+		// space used live: 6 > 5 > 4 > 2 > 1 = 3
+		table1.spaceUsedLive = "0";
+		table2.spaceUsedLive = "22";
+		table3.spaceUsedLive = "0";
+		table4.spaceUsedLive = "4444";
+		table5.spaceUsedLive = "55555";
+		table6.spaceUsedLive = "666666";
 		// space used total: 1 > 2 > 3 > 4 > 5 > 6
 		table1.spaceUsedTotal = "9001";
 		table2.spaceUsedTotal = "1024";
@@ -245,14 +273,28 @@ public class TableStatsTestBase
 		table2.bloomFilterOffHeapUsed = true;
 		table4.bloomFilterOffHeapUsed = true;
 		table6.bloomFilterOffHeapUsed = true;
+		table2.compressionMetadataOffHeapUsed = true;
+		table4.compressionMetadataOffHeapUsed = true;
+		table6.compressionMetadataOffHeapUsed = true;
+		table2.indexSummaryOffHeapUsed = true;
+		table4.indexSummaryOffHeapUsed = true;
+		table6.indexSummaryOffHeapUsed = true;
 		// offheap memory total: 4 > 2 > 6 > 1 = 3 = 5
-		table2.offHeapMemoryUsedTotal = "314159363";
-		table4.offHeapMemoryUsedTotal = "441213814";
-		table6.offHeapMemoryUsedTotal = "162470806";
+		table2.offHeapMemoryUsedTotal = "314159367";
+		table4.offHeapMemoryUsedTotal = "441213818";
+		table6.offHeapMemoryUsedTotal = "162470810";
 		// bloom filter offheap: 4 > 6 > 2 > 1 = 3 = 5
 		table2.bloomFilterOffHeapMemoryUsed = "98";
 		table4.bloomFilterOffHeapMemoryUsed = "299792458";
 		table6.bloomFilterOffHeapMemoryUsed = "667408";
+		// comression metadata offheap: 2 > 4 > 6 > 1 = 3 = 5
+		table2.compressionMetadataOffHeapMemoryUsed = "3";
+		table4.compressionMetadataOffHeapMemoryUsed = "2";
+		table6.compressionMetadataOffHeapMemoryUsed = "1";
+		// index summary offheap: 6 > 4 > 2 > 1 = 3 = 5
+		table2.indexSummaryOffHeapMemoryUsed = "1";
+		table4.indexSummaryOffHeapMemoryUsed = "2";
+		table6.indexSummaryOffHeapMemoryUsed = "3";
 		// memtable offheap: 2 > 6 > 4 > 1 = 3 = 5
 		table2.memtableOffHeapMemoryUsed = "314159265";
 		table4.memtableOffHeapMemoryUsed = "141421356";

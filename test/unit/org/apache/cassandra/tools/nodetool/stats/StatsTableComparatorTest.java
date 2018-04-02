@@ -44,157 +44,186 @@ public class StatsTableComparatorTest extends TableStatsTestBase {
         return names;    
     }
 
+	private void runCompareTest(List<StatsTable> vector, String sortKey, String expectedOrder, boolean humanReadable)
+	{
+		Collections.sort(vector, new StatsTableComparator(sortKey, humanReadable));
+		String failureMessage = String.format("StatsTableComparator failed to sort by %s", sortKey);
+        assertEquals(failureMessage, expectedOrder, buildSortOrderString(vector));
+	}
+
     @Test
     public void testCompareDoubles() throws Exception
     {
 		// average live cells: 1 > 6 > 2 > 5 > 3 > 4
-		Collections.sort(testTables,
-			new StatsTableComparator("average_live_cells_per_slice_last_five_minutes", false));
-        assertEquals("StatsTableComparator failed to sort by average_live_cells_per_slice_last_five_minutes",
+		runCompareTest(testTables,
+			"average_live_cells_per_slice_last_five_minutes",
 			"table1 > table6 > table2 > table5 > table3 > table4",
-			buildSortOrderString(testTables));
+			false);
 		// average tombstones: 6 > 1 > 5 > 2 > 3 > 4
-		Collections.sort(testTables,
-			new StatsTableComparator("average_tombstones_per_slice_last_five_minutes", false));
-        assertEquals("StatsTableComparator failed to sort by average_tombstones_per_slice_last_five_minutes",
+		runCompareTest(testTables,
+			"average_tombstones_per_slice_last_five_minutes",
 			"table6 > table1 > table5 > table2 > table3 > table4",
-			buildSortOrderString(testTables));
+			false);
         // read latency: 3 > 2 > 1 > 6 > 4 > 5
-		Collections.sort(testTables, new StatsTableComparator("read_latency", false));
-        assertEquals("StatsTableComparator failed to sort by read_latency",
+		runCompareTest(testTables,
+			"read_latency",
 			"table3 > table2 > table1 > table6 > table4 > table5",
-			buildSortOrderString(testTables));
+			false);
         // write latency: 4 > 5 > 6 > 1 > 2 > 3
-        Collections.sort(testTables, new StatsTableComparator("write_latency", false));
-        assertEquals("StatsTableComparator failed to sort by write_latency",
+		runCompareTest(testTables,
+			"write_latency",
 			"table4 > table5 > table6 > table1 > table2 > table3",
-			buildSortOrderString(testTables));
+			false);
 		// percent repaired
-        Collections.sort(testTables, new StatsTableComparator("percent_repaired", false));
-        assertEquals("StatsTableComparator failed to sort by percent_repaired",
+		runCompareTest(testTables,
+			"percent_repaired",
 			"table1 > table2 > table3 > table5 > table4 > table6",
-			buildSortOrderString(testTables));
+			false);
     }
 
     @Test
     public void testCompareLongs() throws Exception
     {
         // reads: 6 > 5 > 4 > 3 > 2 > 1
-		Collections.sort(testTables, new StatsTableComparator("reads", false));
-        assertEquals("StatsTableComparator failed to sort by reads",
+		runCompareTest(testTables,
+			"reads",
 			"table6 > table5 > table4 > table3 > table2 > table1",
-			buildSortOrderString(testTables));
+			false);
         // writes: 1 > 2 > 3 > 4 > 5 > 6
-		Collections.sort(testTables, new StatsTableComparator("writes", false));
-        assertEquals("StatsTableComparator failed to sort by writes",
+		runCompareTest(testTables,
+			"writes",
 			"table1 > table2 > table3 > table4 > table5 > table6",
-			buildSortOrderString(testTables));
+			false);
 		// compacted partition maximum bytes: 1 > 3 > 5 > 2 > 4 = 6 
-		Collections.sort(testTables, new StatsTableComparator("compacted_partition_maximum_bytes", false));
-        assertEquals("StatsTableComparator failed to sort by compacted_partition_maximum_bytes",
+		runCompareTest(testTables,
+			"compacted_partition_maximum_bytes",
 			"table1 > table3 > table5 > table2 > table4 > table6",
-			buildSortOrderString(testTables));
+			false);
 		// compacted partition mean bytes: 1 > 3 > 2 = 4 = 5 > 6
-		Collections.sort(testTables, new StatsTableComparator("compacted_partition_mean_bytes", false));
-        assertEquals("StatsTableComparator failed to sort by compacted_partition_mean_bytes",
+		runCompareTest(testTables,
+			"compacted_partition_mean_bytes",
 			"table1 > table3 > table2 > table4 > table5 > table6",
-			buildSortOrderString(testTables));
+			false);
 		// compacted partition minimum bytes: 6 > 4 > 2 > 5 > 1 = 3
-		Collections.sort(testTables, new StatsTableComparator("compacted_partition_minimum_bytes", false));
-        assertEquals("StatsTableComparator failed to sort by compacted_partition_minimum_bytes",
+		runCompareTest(testTables,
+			"compacted_partition_minimum_bytes",
 			"table6 > table4 > table2 > table5 > table1 > table3",
-			buildSortOrderString(testTables));
+			false);
 		// maximum live cells last five minutes: 1 > 2 = 3 > 4 = 5 > 6
-		Collections.sort(testTables, new StatsTableComparator("maximum_live_cells_per_slice_last_five_minutes", false));
-        assertEquals("StatsTableComparator failed to sort by maximum_live_cells_per_slice_last_five_minutes",
+		runCompareTest(testTables,
+			"maximum_live_cells_per_slice_last_five_minutes",
 			"table1 > table2 > table3 > table4 > table5 > table6",
-			buildSortOrderString(testTables));
+			false);
 		// maximum tombstones last five minutes: 6 > 5 > 3 = 4 > 2 > 1
-		Collections.sort(testTables, new StatsTableComparator("maximum_tombstones_per_slice_last_five_minutes", false));
-        assertEquals("StatsTableComparator failed to sort by maximum_tombstones_per_slice_last_five_minutes",
+		runCompareTest(testTables,
+			"maximum_tombstones_per_slice_last_five_minutes",
 			"table6 > table5 > table3 > table4 > table2 > table1",
-			buildSortOrderString(testTables));
+			false);
     }
 
     @Test
     public void testCompareHumanReadable() throws Exception
     {
         // human readable space used total: 6 > 5 > 4 > 3 > 2 > 1
-		Collections.sort(humanReadableTables, new StatsTableComparator("space_used_total", true));
-        assertEquals("StatsTableComparator failed to sort by human readable space used total",
+		runCompareTest(humanReadableTables,
+			"space_used_total",
 			"table6 > table5 > table4 > table3 > table2 > table1",
-			buildSortOrderString(humanReadableTables));
+			true);
         // human readable memtable data size: 1 > 3 > 5 > 2 > 4 > 6
-		Collections.sort(humanReadableTables, new StatsTableComparator("memtable_data_size", true));
-        assertEquals("StatsTableComparator failed to sort by human readable memtable data size",
+		runCompareTest(humanReadableTables,
+			"memtable_data_size",
 			"table1 > table3 > table5 > table2 > table4 > table6",
-			buildSortOrderString(humanReadableTables));
+			true);
     }
 
     @Test
     public void testCompareObjects() throws Exception
     {
         // bloom filter false positives: 2 > 4 > 6 > 1 > 3 > 5
-		Collections.sort(testTables, new StatsTableComparator("bloom_filter_false_positives", false));
-        assertEquals("StatsTableComparator failed to sort by bloom_filter_false_positives",
+		runCompareTest(testTables,
+			"bloom_filter_false_positives",
 			"table2 > table4 > table6 > table1 > table3 > table5",
-			buildSortOrderString(testTables));
+			false);
         // bloom filter false positive ratio: 5 > 3 > 1 > 6 > 4 > 2
-		Collections.sort(testTables, new StatsTableComparator("bloom_filter_false_ratio", false));
-        assertEquals("StatsTableComparator failed to sort by bloom_filter_false_ratio",
+		runCompareTest(testTables,
+			"bloom_filter_false_ratio",
 			"table5 > table3 > table1 > table6 > table4 > table2",
-			buildSortOrderString(testTables));
+			false);
 		// memtable cell count
 		// memtable switch count
 		// number of partitions estimate
 		// pending flushes
 		// sstable compression ratio
         // sstable count: 1 > 3 > 5 > 2 > 4 > 6
-		Collections.sort(testTables, new StatsTableComparator("sstable_count", false));
-        assertEquals("StatsTableComparator failed to sort by sstable_count",
+		runCompareTest(testTables,
+			"sstable_count",
 			"table1 > table3 > table5 > table2 > table4 > table6",
-			buildSortOrderString(testTables));
+			false);
     }
 
     @Test
     public void testCompareOffHeap() throws Exception
     {
         // offheap memory total: 4 > 2 > 6 > 1 = 3 = 5 
-        Collections.sort(testTables, new StatsTableComparator("off_heap_memory_used_total", false));
-        assertEquals("StatsTableComparator failed to sort by off_heap_memory_used_total",
+		runCompareTest(testTables,
+			"off_heap_memory_used_total",
 			"table4 > table2 > table6 > table1 > table3 > table5",
-			buildSortOrderString(testTables));
+			false);
         // bloom filter offheap: 4 > 6 > 2 > 1 > 3 > 5
-        Collections.sort(testTables, new StatsTableComparator("bloom_filter_off_heap_memory_used", false));
-        assertEquals("StatsTableComparator failed to sort by bloom_filter_off_heap_memory_used",
+		runCompareTest(testTables,
+			"bloom_filter_off_heap_memory_used",
 			"table4 > table6 > table2 > table1 > table3 > table5",
-			buildSortOrderString(testTables));
-		// compression metadata offheap
-		// index summary offheap
+			false);
+		// compression metadata offheap: 2 > 4 > 6 > 1 = 3 = 5
+		runCompareTest(testTables,
+			"compression_metadata_off_heap_memory_used",
+			"table2 > table4 > table6 > table1 > table3 > table5",
+			false);
+		// index summary offheap: 6 > 4 > 2 > 1 = 3 = 5
+		runCompareTest(testTables,
+			"index_summary_off_heap_memory_used",
+			"table6 > table4 > table2 > table1 > table3 > table5",
+			false);
         // memtable offheap: 2 > 6 > 4 > 1 = 3 = 5
-        Collections.sort(testTables, new StatsTableComparator("memtable_off_heap_memory_used", false));
-        assertEquals("StatsTableComparator failed to sort by memtable_off_heap_memory_used",
+		runCompareTest(testTables,
+			"memtable_off_heap_memory_used",
 			"table2 > table6 > table4 > table1 > table3 > table5",
-			buildSortOrderString(testTables));
+			false);
     }
 
     @Test
     public void testCompareStrings() throws Exception
     {
-		// bloom filter space used
-		// dropped mutations
-		// space used by snapshots
-		// space used live
+		// bloom filter space used: 2 > 4 > 6 > 1 > 3 > 5
+		runCompareTest(testTables,
+			"bloom_filter_space_used",
+			"table2 > table4 > table6 > table1 > table3 > table5",
+			false);
+		// dropped mutations: 6 > 3 > 4 > 2 > 1 = 5
+		runCompareTest(testTables,
+			"dropped_mutations",
+			"table6 > table3 > table4 > table2 > table1 > table5",
+			false);
+		// space used by snapshots: 5 > 1 > 2 > 4 > 3 = 6
+		runCompareTest(testTables,
+			"space_used_by_snapshots_total",
+			"table5 > table1 > table2 > table4 > table3 > table6",
+			false);
+		// space used live: 6 > 5 > 4 > 2 > 1 = 3
+		runCompareTest(testTables,
+			"space_used_live",
+			"table6 > table5 > table4 > table2 > table1 > table3",
+			false);
         // space used total: 1 > 2 > 3 > 4 > 5 > 6
-        Collections.sort(testTables, new StatsTableComparator("space_used_total", false));
-        assertEquals("StatsTableComparator failed to sort by space_used_total",
+		runCompareTest(testTables,
+			"space_used_total",
 			"table1 > table2 > table3 > table4 > table5 > table6",
-			buildSortOrderString(testTables));
+			false);
         // memtable data size: 6 > 5 > 4 > 3 > 2 > 1
-        Collections.sort(testTables, new StatsTableComparator("memtable_data_size", false));
-        assertEquals("StatsTableComparator failed to sort by memtable_data_size",
+		runCompareTest(testTables,
+			"memtable_data_size",
 			"table6 > table5 > table4 > table3 > table2 > table1",
-			buildSortOrderString(testTables));
+			false);
     }
 
 }
