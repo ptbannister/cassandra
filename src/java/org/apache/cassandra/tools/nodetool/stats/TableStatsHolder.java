@@ -20,10 +20,9 @@ package org.apache.cassandra.tools.nodetool.stats;
 
 import java.util.*;
 
-import javax.management.InstanceNotFoundException;
-
 import com.google.common.collect.ArrayListMultimap;
 
+import javax.management.InstanceNotFoundException;
 import org.apache.cassandra.db.*;
 import org.apache.cassandra.io.util.*;
 import org.apache.cassandra.metrics.*;
@@ -205,7 +204,7 @@ public class TableStatsHolder implements StatsHolder
             {
                 String tableName = table.getTableName();
                 StatsTable statsTable = new StatsTable();
-				statsTable.fullName = keyspaceName + "." + tableName;
+                statsTable.fullName = keyspaceName + "." + tableName;
                 statsTable.keyspaceName = keyspaceName;
                 statsTable.tableName = tableName;
                 statsTable.isIndex = tableName.contains(".");
