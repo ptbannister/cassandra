@@ -178,7 +178,7 @@ public class StatsTableComparator implements Comparator
         else if (sortKey.equals("compacted_partition_minimum_bytes"))
         {
             result = sign * Long.valueOf(stx.compactedPartitionMinimumBytes)
-                i           .compareTo(Long.valueOf(sty.compactedPartitionMinimumBytes));
+                            .compareTo(Long.valueOf(sty.compactedPartitionMinimumBytes));
         }
         else if (sortKey.equals("compression_metadata_off_heap_memory_used"))
         {
