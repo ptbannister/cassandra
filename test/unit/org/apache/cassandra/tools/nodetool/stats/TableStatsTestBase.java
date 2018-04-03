@@ -322,7 +322,7 @@ public class TableStatsTestBase
 		table2.bloomFilterOffHeapMemoryUsed = "98";
 		table4.bloomFilterOffHeapMemoryUsed = "299792458";
 		table6.bloomFilterOffHeapMemoryUsed = "667408";
-		// comression metadata offheap: 2 > 4 > 6 > 1 = 3 = 5
+		// compression metadata offheap: 2 > 4 > 6 > 1 = 3 = 5
 		table2.compressionMetadataOffHeapMemoryUsed = "3";
 		table4.compressionMetadataOffHeapMemoryUsed = "2";
 		table6.compressionMetadataOffHeapMemoryUsed = "1";
