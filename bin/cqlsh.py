@@ -74,15 +74,15 @@ except ImportError:
 CQL_LIB_PREFIX = 'cassandra-driver-internal-only-'
 
 CASSANDRA_PATH = os.path.join(os.path.dirname(os.path.realpath(__file__)), '..')
-CASSANDRA_CQL_HTML_FALLBACK = 'https://cassandra.apache.org/doc/cql3/CQL-3.2.html'
+CASSANDRA_CQL_HTML_FALLBACK = 'http://cassandra.apache.org/doc/latest/cql'
 
 # default location of local CQL.html
-if os.path.exists(CASSANDRA_PATH + '/doc/cql3/CQL.html'):
+if os.path.exists(CASSANDRA_PATH + '/doc/html/cql'):
     # default location of local CQL.html
-    CASSANDRA_CQL_HTML = 'file://' + CASSANDRA_PATH + '/doc/cql3/CQL.html'
-elif os.path.exists('/usr/share/doc/cassandra/CQL.html'):
+    CASSANDRA_CQL_HTML = 'file://' + CASSANDRA_PATH + '/doc/html/cql'
+elif os.path.exists('/usr/share/doc/cassandra/html/cql'):
     # fallback to package file
-    CASSANDRA_CQL_HTML = 'file:///usr/share/doc/cassandra/CQL.html'
+    CASSANDRA_CQL_HTML = 'file:///usr/share/doc/cassandra/html/cql'
 else:
     # fallback to online version
     CASSANDRA_CQL_HTML = CASSANDRA_CQL_HTML_FALLBACK
@@ -2031,7 +2031,7 @@ class Shell(cmd.Cmd):
             elif t.lower() in cqldocs.get_help_topics():
                 urlpart = cqldocs.get_help_topic(t)
                 if urlpart is not None:
-                    url = "%s#%s" % (CASSANDRA_CQL_HTML, urlpart)
+                    url = "%s/%s" % (CASSANDRA_CQL_HTML, urlpart)
                     if len(webbrowser._tryorder) == 0:
                         self.printerr("*** No browser to display CQL help. URL for help topic %s : %s" % (t, url))
                     elif self.browser is not None:
