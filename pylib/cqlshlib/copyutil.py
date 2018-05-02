@@ -16,7 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import ConfigParser
+import configparser
 import csv
 import datetime
 import json
@@ -36,12 +36,12 @@ from bisect import bisect_right
 from calendar import timegm
 from collections import defaultdict, namedtuple
 from decimal import Decimal
-from Queue import Queue
+from queue import Queue
 from random import randint
-from StringIO import StringIO
+from io import StringIO
 from select import select
 from uuid import UUID
-from util import profile_on, profile_off
+from .util import profile_on, profile_off
 
 from cassandra import OperationTimedOut
 from cassandra.cluster import Cluster, DefaultConnection
@@ -51,10 +51,10 @@ from cassandra.policies import RetryPolicy, WhiteListRoundRobinPolicy, DCAwareRo
 from cassandra.query import BatchStatement, BatchType, SimpleStatement, tuple_factory
 from cassandra.util import Date, Time
 
-from cql3handling import CqlRuleSet
-from displaying import NO_COLOR_MAP
-from formatting import format_value_default, CqlType, DateTimeFormat, EMPTY, get_formatter
-from sslhandling import ssl_settings
+from .cql3handling import CqlRuleSet
+from .displaying import NO_COLOR_MAP
+from .formatting import format_value_default, CqlType, DateTimeFormat, EMPTY, get_formatter
+from .sslhandling import ssl_settings
 
 PROFILE_ON = False
 STRACE_ON = False
@@ -138,7 +138,7 @@ class SendingChannel(object):
                 try:
                     msg = self.pending_messages.get()
                     self.pipe.send(msg)
-                except Exception, e:
+                except Exception as e:
                     printmsg('%s: %s' % (e.__class__.__name__, e.message))
 
         feeding_thread = threading.Thread(target=feed)
@@ -160,7 +160,7 @@ class SendingChannels(object):
     A group of one way channels for sending messages.
     """
     def __init__(self, num_channels):
-        self.pipes = [OneWayPipe() for _ in xrange(num_channels)]
+        self.pipes = [OneWayPipe() for _ in range(num_channels)]
         self.channels = [SendingChannel(p) for p in self.pipes]
         self.num_channels = num_channels
 
@@ -177,7 +177,7 @@ class ReceivingChannels(object):
     A group of one way channels for receiving messages.
     """
     def __init__(self, num_channels):
-        self.pipes = [OneWayPipe() for _ in xrange(num_channels)]
+        self.pipes = [OneWayPipe() for _ in range(num_channels)]
         self.channels = [ReceivingChannel(p) for p in self.pipes]
         self._readers = [p.reader for p in self.pipes]
         self._rlocks = [p.rlock for p in self.pipes]
@@ -276,7 +276,7 @@ class CopyTask(object):
         if not os.path.isfile(config_file):
             return opts
 
-        configs = ConfigParser.RawConfigParser()
+        configs = configparser.RawConfigParser()
         configs.readfp(open(config_file))
 
         ret = dict()
@@ -306,7 +306,7 @@ class CopyTask(object):
         Convert all option values to valid string literals unless they are path names
         """
         return dict([(k, v.decode('string_escape') if k not in ['errfile', 'ratefile'] else v)
-                     for k, v, in opts.iteritems()])
+                     for k, v, in opts.items()])
 
     def parse_options(self, opts, direction):
         """
@@ -534,7 +534,7 @@ class ExportWriter(object):
         self.columns = columns
         self.options = options
         self.header = options.copy['header']
-        self.max_output_size = long(options.copy['maxoutputsize'])
+        self.max_output_size = int(options.copy['maxoutputsize'])
         self.current_dest = None
         self.num_files = 0
 
@@ -580,7 +580,7 @@ class ExportWriter(object):
                 ret = CsvDest(output=open(source_name, 'wb'), close=True)
                 self.num_files += 1
                 return ret
-            except IOError, e:
+            except IOError as e:
                 self.shell.printerr("Can't open %r for writing: %s" % (source_name, e))
                 return None
 
@@ -604,7 +604,7 @@ class ExportWriter(object):
         if (self.num_written + num) > self.max_output_size:
             num_remaining = self.max_output_size - self.num_written
             last_switch = 0
-            for i, row in enumerate(filter(None, data.split(os.linesep))):
+            for i, row in enumerate([_f for _f in data.split(os.linesep) if _f]):
                 if i == num_remaining:
                     self._next_dest()
                     last_switch = i
@@ -625,8 +625,8 @@ class ExportTask(CopyTask):
         CopyTask.__init__(self, shell, ks, table, columns, fname, opts, protocol_version, config_file, 'to')
 
         options = self.options
-        self.begin_token = long(options.copy['begintoken']) if options.copy['begintoken'] else None
-        self.end_token = long(options.copy['endtoken']) if options.copy['endtoken'] else None
+        self.begin_token = int(options.copy['begintoken']) if options.copy['begintoken'] else None
+        self.end_token = int(options.copy['endtoken']) if options.copy['endtoken'] else None
         self.writer = ExportWriter(fname, shell, columns, options)
 
     def run(self):
@@ -637,7 +637,7 @@ class ExportTask(CopyTask):
         shell = self.shell
 
         if self.options.unrecognized:
-            shell.printerr('Unrecognized COPY TO options: %s' % ', '.join(self.options.unrecognized.keys()))
+            shell.printerr('Unrecognized COPY TO options: %s' % ', '.join(list(self.options.unrecognized.keys())))
             return
 
         if not self.validate_columns():
@@ -650,11 +650,11 @@ class ExportTask(CopyTask):
         if not self.writer.open():
             return 0
 
-        columns = u"[" + u", ".join(self.columns) + u"]"
-        self.printmsg(u"\nStarting copy of %s.%s with columns %s." % (self.ks, self.table, columns), encoding=self.encoding)
+        columns = "[" + ", ".join(self.columns) + "]"
+        self.printmsg("\nStarting copy of %s.%s with columns %s." % (self.ks, self.table, columns), encoding=self.encoding)
 
         params = self.make_params()
-        for i in xrange(self.num_processes):
+        for i in range(self.num_processes):
             self.processes.append(ExportProcess(self.update_params(params, i)))
 
         self.start_processes()
@@ -730,7 +730,7 @@ class ExportTask(CopyTask):
             ranges[(begin_token, end_token)] = make_range_data()
             return ranges
 
-        ring = shell.get_ring(self.ks).items()
+        ring = list(shell.get_ring(self.ks).items())
         ring.sort()
 
         if not ring:
@@ -809,7 +809,7 @@ class ExportTask(CopyTask):
         total_requests = len(ranges)
         max_attempts = self.options.copy['maxattempts']
 
-        self.send_work(ranges, ranges.keys())
+        self.send_work(ranges, list(ranges.keys()))
 
         num_processes = len(processes)
         succeeded = 0
@@ -882,7 +882,7 @@ class FilesReader(object):
         def make_source(fname):
             try:
                 return open(fname, 'rb')
-            except IOError, e:
+            except IOError as e:
                 raise IOError("Can't open %r for reading: %s" % (fname, e))
 
         for path in paths.split(','):
@@ -913,14 +913,14 @@ class FilesReader(object):
         self.close_current_source()
         while self.current_source is None:
             try:
-                self.current_source = self.sources.next()
+                self.current_source = next(self.sources)
                 if self.current_source:
                     self.num_sources += 1
             except StopIteration:
                 return False
 
         if self.header:
-            self.current_source.next()
+            next(self.current_source)
 
         return True
 
@@ -939,9 +939,9 @@ class FilesReader(object):
             return []
 
         rows = []
-        for i in xrange(min(max_rows, self.chunk_size)):
+        for i in range(min(max_rows, self.chunk_size)):
             try:
-                row = self.current_source.next()
+                row = next(self.current_source)
                 self.num_read += 1
 
                 if 0 <= self.max_rows < self.num_read:
@@ -955,7 +955,7 @@ class FilesReader(object):
                 self.next_source()
                 break
 
-        return filter(None, rows)
+        return [_f for _f in rows if _f]
 
 
 class PipeReader(object):
@@ -977,7 +977,7 @@ class PipeReader(object):
 
     def read_rows(self, max_rows):
         rows = []
-        for i in xrange(min(max_rows, self.chunk_size)):
+        for i in range(min(max_rows, self.chunk_size)):
             row = self.inpipe.recv()
             if row is None:
                 self.exhausted = True
@@ -1143,14 +1143,14 @@ class ImportTask(CopyTask):
         shell = self.shell
 
         if self.options.unrecognized:
-            shell.printerr('Unrecognized COPY FROM options: %s' % ', '.join(self.options.unrecognized.keys()))
+            shell.printerr('Unrecognized COPY FROM options: %s' % ', '.join(list(self.options.unrecognized.keys())))
             return
 
         if not self.validate_columns():
             return 0
 
-        columns = u"[" + u", ".join(self.valid_columns) + u"]"
-        self.printmsg(u"\nStarting copy of %s.%s with columns %s." % (self.ks, self.table, columns), encoding=self.encoding)
+        columns = "[" + ", ".join(self.valid_columns) + "]"
+        self.printmsg("\nStarting copy of %s.%s with columns %s." % (self.ks, self.table, columns), encoding=self.encoding)
 
         try:
             params = self.make_params()
@@ -1172,8 +1172,8 @@ class ImportTask(CopyTask):
             if pr:
                 profile_off(pr, file_name='parent_profile_%d.txt' % (os.getpid(),))
 
-        except Exception, exc:
-            shell.printerr(unicode(exc))
+        except Exception as exc:
+            shell.printerr(str(exc))
             if shell.debug:
                 traceback.print_exc()
             return 0
@@ -1195,7 +1195,7 @@ class ImportTask(CopyTask):
 
         self.outmsg.channels[-1].send(None)
         if shell.tty:
-            print
+            print()
 
     def import_records(self):
         """
@@ -1329,7 +1329,7 @@ class FeedingProcess(mp.Process):
         reader = self.reader
         try:
             reader.start()
-        except IOError, exc:
+        except IOError as exc:
             self.outmsg.send(ImportTaskError(exc.__class__.__name__, exc.message))
 
         channels = self.worker_channels
@@ -1338,7 +1338,7 @@ class FeedingProcess(mp.Process):
         failed_attempts = 0
 
         while not reader.exhausted:
-            channels_eligible = filter(lambda c: c.num_pending() < max_pending_chunks, channels)
+            channels_eligible = [c for c in channels if c.num_pending() < max_pending_chunks]
             if not channels_eligible:
                 failed_attempts += 1
                 delay = randint(1, pow(2, failed_attempts))
@@ -1358,7 +1358,7 @@ class FeedingProcess(mp.Process):
                     rows = reader.read_rows(max_rows)
                     if rows:
                         sent += self.send_chunk(ch, rows)
-                except Exception, exc:
+                except Exception as exc:
                     self.outmsg.send(ImportTaskError(exc.__class__.__name__, exc.message))
 
                 if reader.exhausted:
@@ -1582,7 +1582,7 @@ class ExportProcess(ChildProcess):
             if print_traceback and sys.exc_info()[1] == err:
                 traceback.print_exc()
         else:
-            msg = unicode(err)
+            msg = str(err)
         return msg
 
     def report_error(self, err, token_range):
@@ -1606,7 +1606,7 @@ class ExportProcess(ChildProcess):
             self.attach_callbacks(token_range, future, session)
 
     def num_requests(self):
-        return sum(session.num_requests() for session in self.hosts_to_sessions.values())
+        return sum(session.num_requests() for session in list(self.hosts_to_sessions.values()))
 
     def get_session(self, hosts, token_range):
         """
@@ -1626,7 +1626,7 @@ class ExportProcess(ChildProcess):
         for host in hosts:
             try:
                 ret = self.connect(host)
-            except Exception, e:
+            except Exception as e:
                 errors.append(self.get_error_message(e))
 
             if ret:
@@ -1639,7 +1639,7 @@ class ExportProcess(ChildProcess):
         return None
 
     def connect(self, host):
-        if host in self.hosts_to_sessions.keys():
+        if host in list(self.hosts_to_sessions.keys()):
             session = self.hosts_to_sessions[host]
             session.add_request()
             return session
@@ -1691,13 +1691,13 @@ class ExportProcess(ChildProcess):
             writer = csv.writer(output, **self.options.dialect)
 
             for row in rows:
-                writer.writerow(map(self.format_value, row, cql_types))
+                writer.writerow(list(map(self.format_value, row, cql_types)))
 
             data = (output.getvalue(), len(rows))
             self.send((token_range, data))
             output.close()
 
-        except Exception, e:
+        except Exception as e:
             self.report_error(e, token_range)
 
     def format_value(self, val, cqltype):
@@ -1720,7 +1720,7 @@ class ExportProcess(ChildProcess):
 
     def close(self):
         ChildProcess.close(self)
-        for session in self.hosts_to_sessions.values():
+        for session in list(self.hosts_to_sessions.values()):
             session.shutdown()
 
     def prepare_query(self, partition_key, token_range, attempts):
@@ -2053,11 +2053,11 @@ class ImportConversion(object):
             'ascii': convert_text,
             'float': get_convert_decimal_fcn(),
             'double': get_convert_decimal_fcn(),
-            'bigint': get_convert_integer_fcn(adapter=long),
+            'bigint': get_convert_integer_fcn(adapter=int),
             'int': get_convert_integer_fcn(),
             'varint': get_convert_integer_fcn(),
             'inet': convert_text,
-            'counter': get_convert_integer_fcn(adapter=long),
+            'counter': get_convert_integer_fcn(adapter=int),
             'timestamp': convert_datetime,
             'timeuuid': convert_uuid,
             'date': convert_date,
@@ -2102,7 +2102,7 @@ class ImportConversion(object):
         def convert(c, v):
             try:
                 return c(v) if v != self.nullval else self.get_null_val()
-            except Exception, e:
+            except Exception as e:
                 # if we could not convert an empty string, then self.nullval has been set to a marker
                 # because the user needs to import empty strings, except that the converters for some types
                 # will fail to convert an empty string, in this case the null value should be inserted
@@ -2204,7 +2204,7 @@ class TokenMap(object):
 
     def filter_replicas(self, hosts):
         shuffled = tuple(sorted(hosts, key=lambda k: random.random()))
-        return filter(lambda r: r.is_up is not False and r.datacenter == self.local_dc, shuffled) if hosts else ()
+        return [r for r in shuffled if r.is_up is not False and r.datacenter == self.local_dc] if hosts else ()
 
 
 class FastTokenAwarePolicy(DCAwareRoundRobinPolicy):
@@ -2237,7 +2237,7 @@ class FastTokenAwarePolicy(DCAwareRoundRobinPolicy):
                     return conn.in_flight < min(conn.max_request_id, self.max_inflight_messages)
                 return True
 
-            for i in xrange(self.max_backoff_attempts):
+            for i in range(self.max_backoff_attempts):
                 for r in filter(replica_is_not_overloaded, replicas):
                     yield r
 
@@ -2321,7 +2321,7 @@ class ImportProcess(ChildProcess):
             if pr:
                 profile_off(pr, file_name='worker_profile_%d.txt' % (os.getpid(),))
 
-        except Exception, exc:
+        except Exception as exc:
             self.report_error(exc)
 
         finally:
@@ -2399,15 +2399,15 @@ class ImportProcess(ChildProcess):
                     # causes the statement to be None, then we should not report the error so that we can test
                     # the parent process handling missing batches from child processes
 
-            except Exception, exc:
+            except Exception as exc:
                 self.report_error(exc, chunk, chunk['rows'])
 
     def wrap_make_statement(self, inner_make_statement):
         def make_statement(query, conv, chunk, batch, replicas):
             try:
                 return inner_make_statement(query, conv, batch, replicas)
-            except Exception, exc:
-                print "Failed to make batch statement: {}".format(exc)
+            except Exception as exc:
+                print("Failed to make batch statement: {}".format(exc))
                 self.report_error(exc, chunk, batch['rows'])
                 return None
 
@@ -2477,14 +2477,14 @@ class ImportProcess(ChildProcess):
         def convert_row(r):
             try:
                 return conv.convert_row(r)
-            except Exception, err:
+            except Exception as err:
                 errors[err.message].append(r)
                 return None
 
-        converted_rows = filter(None, [convert_row(r) for r in rows])
+        converted_rows = [_f for _f in [convert_row(r) for r in rows] if _f]
 
         if errors:
-            for msg, rows in errors.iteritems():
+            for msg, rows in errors.items():
                 self.report_error(ParseError(msg), chunk, rows)
         return converted_rows
 
@@ -2549,27 +2549,27 @@ class ImportProcess(ChildProcess):
             try:
                 pk = get_row_partition_key_values(row)
                 rows_by_ring_pos[get_ring_pos(ring, pk_to_token_value(pk))].append(row)
-            except Exception, e:
+            except Exception as e:
                 errors[e.message].append(row)
 
         if errors:
-            for msg, rows in errors.iteritems():
+            for msg, rows in errors.items():
                 self.report_error(ParseError(msg), chunk, rows)
 
         replicas = tm.replicas
         filter_replicas = tm.filter_replicas
         rows_by_replica = defaultdict(list)
-        for ring_pos, rows in rows_by_ring_pos.iteritems():
+        for ring_pos, rows in rows_by_ring_pos.items():
             if len(rows) > min_batch_size:
-                for i in xrange(0, len(rows), max_batch_size):
+                for i in range(0, len(rows), max_batch_size):
                     yield filter_replicas(replicas[ring_pos]), make_batch(chunk['id'], rows[i:i + max_batch_size])
             else:
                 # select only the first valid replica to guarantee more overlap or none at all
                 rows_by_replica[filter_replicas(replicas[ring_pos])[:1]].extend(rows)
 
         # Now send the batches by replica
-        for replicas, rows in rows_by_replica.iteritems():
-            for i in xrange(0, len(rows), max_batch_size):
+        for replicas, rows in rows_by_replica.items():
+            for i in range(0, len(rows), max_batch_size):
                 yield replicas, make_batch(chunk['id'], rows[i:i + max_batch_size])
 
     def result_callback(self, _, batch, chunk):

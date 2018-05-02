@@ -16,7 +16,7 @@
 
 from cqlshlib.displaying import MAGENTA
 from datetime import datetime, timedelta
-from formatting import CqlType
+from .formatting import CqlType
 import time
 from cassandra.query import QueryTrace, TraceUnavailable
 
@@ -45,8 +45,8 @@ def print_trace(shell, trace):
         return
     names = ['activity', 'timestamp', 'source', 'source_elapsed', 'client']
 
-    formatted_names = map(shell.myformat_colname, names)
-    formatted_values = [map(shell.myformat_value, row) for row in rows]
+    formatted_names = list(map(shell.myformat_colname, names))
+    formatted_values = [list(map(shell.myformat_value, row)) for row in rows]
 
     shell.writeresult('')
     shell.writeresult('Tracing session: ', color=MAGENTA, newline=False)

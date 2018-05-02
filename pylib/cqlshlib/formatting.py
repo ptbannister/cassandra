@@ -23,13 +23,13 @@ import re
 import sys
 import six
 import platform
-import wcwidth
+from . import wcwidth
 
 from collections import defaultdict
-from displaying import colorme, get_str, FormattedValue, DEFAULT_VALUE_COLORS, NO_COLOR_MAP
+from .displaying import colorme, get_str, FormattedValue, DEFAULT_VALUE_COLORS, NO_COLOR_MAP
 from cassandra.cqltypes import EMPTY
 from cassandra.util import datetime_from_timestamp
-from util import UTC
+from .util import UTC
 
 is_win = platform.system() == 'Windows'
 
@@ -218,7 +218,7 @@ _formatters = {}
 def format_value(val, cqltype, **kwargs):
     if val == EMPTY:
         return format_value_default('', **kwargs)
-
+    print("formatting.format_value: formatting val {0} (type {1})".format(val, type(val))) # TODO: remove
     formatter = get_formatter(val, cqltype)
     return formatter(val, cqltype=cqltype, **kwargs)
 
@@ -453,14 +453,14 @@ def decode_unsigned_vint(buf):
     For example, if we need to read 3 more bytes the first byte will start with 1110.
     """
 
-    first_byte = buf.next()
+    first_byte = next(buf)
     if (first_byte >> 7) == 0:
         return first_byte
 
     size = number_of_extra_bytes_to_read(first_byte)
     retval = first_byte & (0xff >> size)
     for i in range(size):
-        b = buf.next()
+        b = next(buf)
         retval <<= 8
         retval |= b & 0xff
 
@@ -477,15 +477,18 @@ def decode_zig_zag_64(n):
 
 @formatter_for('str')
 def format_value_text(val, encoding, colormap, quote=False, **_):
-    escapedval = val.replace(u'\\', u'\\\\')
+    escapedval = val.replace('\\', '\\\\')
     if quote:
         escapedval = escapedval.replace("'", "''")
-    escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval)
-    bval = escapedval.encode(encoding, 'backslashreplace')
+    # TODO: revisit this
+    bval = escapedval
+    #escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval)
+    #bval = escapedval.encode(encoding, 'backslashreplace')
     if quote:
         bval = "'%s'" % bval
-
-    return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval.decode(encoding)))
+    # TODO: revisit this
+    #return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval.decode(encoding)))
+    return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval))
 
 
 # name alias
@@ -584,7 +587,7 @@ def format_value_utype(val, cqltype, encoding, colormap, date_time_format, float
     def format_field_name(name):
         return format_value_text(name, encoding=encoding, colormap=colormap, quote=False)
 
-    subs = [(format_field_name(k), format_field_value(v, t)) for ((k, v), t) in zip(val._asdict().items(),
+    subs = [(format_field_name(k), format_field_value(v, t)) for ((k, v), t) in zip(list(val._asdict().items()),
                                                                                     cqltype.sub_types)]
     bval = '{' + ', '.join(get_str(k) + ': ' + get_str(v) for (k, v) in subs) + '}'
     if colormap is NO_COLOR_MAP:
