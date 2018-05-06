@@ -19,8 +19,9 @@
 import contextlib
 import tempfile
 import os.path
-from .basecase import cql, cqlsh, cqlshlog, TEST_HOST, TEST_PORT, rundir, policy, quote_name
-from .run_cqlsh import run_cqlsh, call_cqlsh
+
+from test.basecase import cql, cqlsh, cqlshlog, TEST_HOST, TEST_PORT, rundir, policy, quote_name
+from test.run_cqlsh import run_cqlsh, call_cqlsh
 
 test_keyspace_init = os.path.join(rundir, 'test_keyspace_init.cql')
 
@@ -43,12 +44,12 @@ def make_ks_name():
     return os.path.basename(tempfile.mktemp(prefix='CqlshTests_'))
 
 def create_keyspace(cursor):
-    ksname = make_ks_name()
+    ksname = make_ks_name().lower()
     qksname = quote_name(ksname)
     cursor.execute('''
         CREATE KEYSPACE %s WITH replication =
             {'class': 'SimpleStrategy', 'replication_factor': 1};
-    ''' % quote_name(ksname))
+    ''' % qksname)
     cursor.execute('USE %s;' % qksname)
     TEST_KEYSPACES_CREATED.append(ksname)
     return ksname
@@ -63,11 +64,11 @@ def split_cql_commands(source):
 
 def execute_cql_commands(cursor, source, logprefix='INIT: '):
     for cql in split_cql_commands(source):
-        cqlshlog.debug(logprefix + cql)
+        cqlshlog.debug((logprefix + cql).encode("utf-8"))
         cursor.execute(cql)
 
 def execute_cql_file(cursor, fname):
-    with open(fname) as f:
+    with open(fname, "r", encoding="utf-8") as f:
         return execute_cql_commands(cursor, f.read())
 
 def create_db():

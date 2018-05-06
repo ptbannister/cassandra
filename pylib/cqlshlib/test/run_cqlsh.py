@@ -24,7 +24,7 @@ import subprocess
 import signal
 import math
 from time import time
-from . import basecase
+from test import basecase
 from os.path import join, normpath
 
 
@@ -171,19 +171,21 @@ class ProcRunner:
         return self.proc.wait()
 
     def send_tty(self, data):
+        if not isinstance(data, bytes):
+            data = data.encode("utf-8")
         os.write(self.childpty, data)
 
     def send_pipe(self, data):
         self.proc.stdin.write(data)
 
     def read_tty(self, blksize, timeout=None):
-        return os.read(self.childpty, blksize)
+        return os.read(self.childpty, blksize).decode()
 
     def read_pipe(self, blksize, timeout=None):
-        return self.proc.stdout.read(blksize)
+        return self.proc.stdout.read(blksize).decode()
 
     def read_winpty(self, blksize, timeout=None):
-        return self.winpty.read(blksize, timeout)
+        return self.winpty.read(blksize, timeout).decode()
 
     def read_until(self, until, blksize=4096, timeout=None,
                    flags=0, ptty_timeout=None):
@@ -256,7 +258,7 @@ class CqlshRunner(ProcRunner):
         if cqlver is not None:
             args += ('--cqlversion', str(cqlver))
         if keyspace is not None:
-            args += ('--keyspace', keyspace)
+            args += ('--keyspace', keyspace.lower())
         if tty and is_win():
             args += ('--tty',)
             args += ('--encoding', 'utf-8')

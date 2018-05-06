@@ -18,10 +18,10 @@
 # and $CQL_TEST_PORT to the associated port.
 
 
-
+import os
 import re
-from .basecase import BaseTestCase, cqlsh
-from .cassconnect import testrun_cqlsh
+from test.basecase import BaseTestCase, cqlsh, cqlshlog
+from test.cassconnect import create_db, remove_db, testrun_cqlsh
 import unittest
 import sys
 
@@ -41,8 +41,19 @@ completion_separation_re = re.compile(r'\s+')
 @unittest.skipIf(sys.platform == "win32", 'Tab completion tests not supported on Windows')
 class CqlshCompletionCase(BaseTestCase):
 
+    @classmethod
+    def setUpClass(cls):
+        create_db()
+
+    @classmethod
+    def tearDownClass(cls):
+        remove_db()
+
     def setUp(self):
-        self.cqlsh_runner = testrun_cqlsh(cqlver=None, env={'COLUMNS': '100000'})
+        env = os.environ
+        env['COLUMNS'] = '100000'
+        #self.cqlsh_runner = testrun_cqlsh(cqlver=None, env={'COLUMNS': '100000'})
+        self.cqlsh_runner = testrun_cqlsh(cqlver=None, env=env)
         self.cqlsh = self.cqlsh_runner.__enter__()
 
     def tearDown(self):
@@ -542,7 +553,8 @@ class TestCqlshCompletion(CqlshCompletionCase):
         they're synonyms, they should have the same completion behavior, so this
         test avoids duplication between tests for the two statements."""
         prefix = 'CREATE ' + name + ' '
-        quoted_keyspace = '"' + self.cqlsh.keyspace + '"'
+        #quoted_keyspace = '"' + self.cqlsh.keyspace + '"'
+        quoted_keyspace = self.cqlsh.keyspace
         self.trycompletions(prefix + '',
                             choices=['IF', quoted_keyspace, '<new_table_name>'])
         self.trycompletions(prefix + 'IF ',
