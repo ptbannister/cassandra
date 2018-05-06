@@ -884,7 +884,7 @@ class FilesReader(object):
         """
         def make_source(fname):
             try:
-                return open(fname, 'rb')
+                return open(fname, 'r')
             except IOError as e:
                 raise IOError("Can't open %r for reading: %s" % (fname, e))
 
@@ -2272,7 +2272,8 @@ class ImportProcess(ChildProcess):
         ChildProcess.__init__(self, params=params, target=self.run)
 
         self.skip_columns = params['skip_columns']
-        self.valid_columns = [c.encode(self.encoding) for c in params['valid_columns']]
+        #self.valid_columns = [c.encode(self.encoding) for c in params['valid_columns']]
+        self.valid_columns = [c for c in params['valid_columns']]
         self.skip_column_indexes = [i for i, c in enumerate(self.columns) if c in self.skip_columns]
 
         options = params['options']
