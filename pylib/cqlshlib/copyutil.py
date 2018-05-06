@@ -79,7 +79,7 @@ def printdebugmsg(msg):
 
 
 def printmsg(msg, eol='\n', encoding='utf8'):
-    sys.stdout.write(msg.encode(encoding))
+    sys.stdout.write(msg)
     sys.stdout.write(eol)
     sys.stdout.flush()
 
@@ -305,7 +305,9 @@ class CopyTask(object):
         """
         Convert all option values to valid string literals unless they are path names
         """
-        return dict([(k, v.decode('string_escape') if k not in ['errfile', 'ratefile'] else v)
+        #return dict([(k, v.decode('string_escape') if k not in ['errfile', 'ratefile'] else v)
+        #             for k, v, in opts.items()])
+        return dict([(k, v if k not in ['errfile', 'ratefile'] else v)
                      for k, v, in opts.items()])
 
     def parse_options(self, opts, direction):
@@ -556,7 +558,7 @@ class ExportWriter(object):
         if self.header:
             writer = csv.writer(self.current_dest.output, **self.options.dialect)
             writer.writerow(self.columns)
-
+        
         return True
 
     def close(self):
@@ -577,7 +579,8 @@ class ExportWriter(object):
             return CsvDest(output=sys.stdout, close=False)
         else:
             try:
-                ret = CsvDest(output=open(source_name, 'wb'), close=True)
+                #ret = CsvDest(output=open(source_name, 'wb'), close=True)
+                ret = CsvDest(output=open(source_name, 'w'), close=True)
                 self.num_files += 1
                 return ret
             except IOError as e:

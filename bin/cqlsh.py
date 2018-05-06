@@ -357,7 +357,6 @@ def full_cql_version(ver):
 
 def format_value(val, cqltype, encoding, addcolor=False, date_time_format=None,
                  float_precision=None, colormap=None, nullval=None):
-    print("format_value: formatting {0} of cqltype {1} with colormap {2}".format(val, cqltype, colormap)) # TODO: remove
     if isinstance(val, DecodeError):
         if addcolor:
             return colorme(repr(val.thebytes), colormap, 'error')
@@ -958,11 +957,9 @@ class Shell(cmd.Cmd):
                                                        startsymbol='cqlshCommand')
             if parsed and not parsed.remainder:
                 # successful complete parse
-                print("handle_statement: running custom handler") # TODO: remove
                 return custom_handler(parsed)
             else:
                 return self.handle_parse_error(cmdword, tokens, parsed, srcstr)
-        print("handle_statement: running perform_statement") # TODO: remove
         return self.perform_statement(cqlruleset.cql_extract_orig(tokens, srcstr))
 
     def handle_parse_error(self, cmdword, tokens, parsed, srcstr):
@@ -996,9 +993,7 @@ class Shell(cmd.Cmd):
         self.tracing_enabled = tracing_was_enabled
 
     def perform_statement(self, statement):
-        print("perform_statement: about to construct SimpleStatement") # TODO: remove
         stmt = SimpleStatement(statement, consistency_level=self.consistency_level, serial_consistency_level=self.serial_consistency_level, fetch_size=self.page_size if self.use_paging else None)
-        print("perform_statement: about to perform_simple_statement") # TODO: remove
         success, future = self.perform_simple_statement(stmt)
 
         if future:
@@ -1047,18 +1042,17 @@ class Shell(cmd.Cmd):
         if not statement:
             return False, None
         
-        print("perform_simple_statement: about to execute_async") # TODO: remove
         future = self.session.execute_async(statement, trace=self.tracing_enabled)
         result = None
         try:
             result = future.result()
         except CQL_ERRORS as err:
-            self.printerr(str(err.__class__.__name__) + ": " + err.message)
+            err_msg = err.message if hasattr(err, 'message') else str(err)
+            self.printerr(str(err.__class__.__name__) + ": " + err_msg)
         except Exception:
             import traceback
             self.printerr(traceback.format_exc())
 
-        print("perform_simple_Statement: came back from execute_async") # TODO: remove
         # Even if statement failed we try to refresh schema if not agreed (see CASSANDRA-9689)
         if not future.is_schema_agreed:
             try:
@@ -1071,7 +1065,6 @@ class Shell(cmd.Cmd):
         if result is None:
             return False, None
 
-        print("perform_simple_statement: about to print results") # TODO: remove
         if statement.query_string[:6].lower() == 'select':
             self.print_result(result, self.parse_for_select_meta(statement.query_string))
         elif statement.query_string.lower().startswith("list users") or statement.query_string.lower().startswith("list roles"):
@@ -1122,7 +1115,6 @@ class Shell(cmd.Cmd):
         formatted_names = [self.myformat_colname(name, table_meta) for name in column_names]
         if not result.current_rows:
             # print header only
-            print("print_static_result: printing header only") # TODO: remove
             self.print_formatted_result(formatted_names, None)
             return
 

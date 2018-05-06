@@ -218,7 +218,6 @@ _formatters = {}
 def format_value(val, cqltype, **kwargs):
     if val == EMPTY:
         return format_value_default('', **kwargs)
-    print("formatting.format_value: formatting val {0} (type {1})".format(val, type(val))) # TODO: remove
     formatter = get_formatter(val, cqltype)
     return formatter(val, cqltype=cqltype, **kwargs)
 
