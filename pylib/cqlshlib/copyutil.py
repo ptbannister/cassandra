@@ -45,16 +45,17 @@ from .util import profile_on, profile_off
 
 from cassandra import OperationTimedOut
 from cassandra.cluster import Cluster, DefaultConnection
-from cassandra.cqltypes import ReversedType, UserType
+from cassandra.cqltypes import ReversedType, UserType, BytesType
 from cassandra.metadata import protect_name, protect_names, protect_value
 from cassandra.policies import RetryPolicy, WhiteListRoundRobinPolicy, DCAwareRoundRobinPolicy, FallthroughRetryPolicy
 from cassandra.query import BatchStatement, BatchType, SimpleStatement, tuple_factory
 from cassandra.util import Date, Time
+from cqlshlib.util import profile_on, profile_off
 
-from .cql3handling import CqlRuleSet
-from .displaying import NO_COLOR_MAP
-from .formatting import format_value_default, CqlType, DateTimeFormat, EMPTY, get_formatter
-from .sslhandling import ssl_settings
+from cqlshlib.cql3handling import CqlRuleSet
+from cqlshlib.displaying import NO_COLOR_MAP
+from cqlshlib.formatting import format_value_default, CqlType, DateTimeFormat, EMPTY, get_formatter
+from cqlshlib.sslhandling import ssl_settings
 
 PROFILE_ON = False
 STRACE_ON = False
@@ -1704,6 +1705,9 @@ class ExportProcess(ChildProcess):
             self.report_error(e, token_range)
 
     def format_value(self, val, cqltype):
+        """
+        blobs format as bytes - this is causing problems right now!
+        """
         if val is None or val == EMPTY:
             return format_value_default(self.nullval, colormap=NO_COLOR_MAP)
 
@@ -2115,7 +2119,7 @@ class ImportConversion(object):
 
                 if self.debug:
                     traceback.print_exc()
-                raise ParseError("Failed to parse %s : %s" % (val, e.message))
+                raise ParseError("Failed to parse %s : %s" % (v, e.message if hasattr(e, 'message') else str(e)))
 
         return [convert(conv, val) for conv, val in zip(converters, row)]
 
@@ -2152,7 +2156,8 @@ class ImportConversion(object):
                 val = serialize(i, row[i])
                 length = len(val)
                 pk_values.append(struct.pack(">H%dsB" % length, length, val, 0))
-            return b"".join(pk_values)
+            #return b"".join(pk_values)
+            return "".join(pk_values) # TODO: revisit
 
         if len(partition_key_indexes) == 1:
             return serialize_row_single
@@ -2482,7 +2487,7 @@ class ImportProcess(ChildProcess):
             try:
                 return conv.convert_row(r)
             except Exception as err:
-                errors[err.message].append(r)
+                errors[err.message if hasattr(err, 'message') else str(err)].append(r)
                 return None
 
         converted_rows = [_f for _f in [convert_row(r) for r in rows] if _f]
@@ -2569,7 +2574,7 @@ class ImportProcess(ChildProcess):
                     yield filter_replicas(replicas[ring_pos]), make_batch(chunk['id'], rows[i:i + max_batch_size])
             else:
                 # select only the first valid replica to guarantee more overlap or none at all
-                rows_by_replica[filter_replicas(replicas[ring_pos])[:1]].extend(rows)
+                rows_by_replica[tuple(filter_replicas(replicas[ring_pos])[:1])].extend(rows) # TODO: revisit tuple wrapper
 
         # Now send the batches by replica
         for replicas, rows in rows_by_replica.items():
@@ -2594,7 +2599,8 @@ class ImportProcess(ChildProcess):
     def report_error(self, err, chunk=None, rows=None, attempts=1, final=True):
         if self.debug and sys.exc_info()[1] == err:
             traceback.print_exc()
-        self.outmsg.send(ImportTaskError(err.__class__.__name__, err.message, rows, attempts, final))
+        err_msg = err.message if hasattr(err, 'message') else str(err)
+        self.outmsg.send(ImportTaskError(err.__class__.__name__, err_msg, rows, attempts, final))
         if final and chunk is not None:
             self.update_chunk(rows, chunk)
 

@@ -18,8 +18,9 @@
 # i.e., stuff that's not necessarily cqlsh-specific
 
 import traceback
+
 from cassandra.metadata import cql_keywords_reserved
-from . import pylexotron, util
+from cqlshlib import pylexotron, util
 
 Hint = pylexotron.Hint
 

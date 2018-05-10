@@ -15,7 +15,8 @@
 # limitations under the License.
 
 import re
-from .saferscanner import SaferScanner
+
+from cqlshlib.saferscanner import SaferScanner
 
 
 class LexingError(Exception):

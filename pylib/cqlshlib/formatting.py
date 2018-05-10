@@ -23,13 +23,14 @@ import re
 import sys
 import six
 import platform
-from . import wcwidth
 
 from collections import defaultdict
-from .displaying import colorme, get_str, FormattedValue, DEFAULT_VALUE_COLORS, NO_COLOR_MAP
+
 from cassandra.cqltypes import EMPTY
 from cassandra.util import datetime_from_timestamp
-from .util import UTC
+from cqlshlib import wcwidth
+from cqlshlib.displaying import colorme, get_str, FormattedValue, DEFAULT_VALUE_COLORS, NO_COLOR_MAP
+from cqlshlib.util import UTC
 
 is_win = platform.system() == 'Windows'
 
@@ -238,7 +239,7 @@ def formatter_for(typname):
 
 @formatter_for('bytearray')
 def format_value_blob(val, colormap, **_):
-    bval = '0x' + binascii.hexlify(val)
+    bval = '0x' + str(binascii.hexlify(val))[2:-1]
     return colorme(bval, colormap, 'blob')
 
 
