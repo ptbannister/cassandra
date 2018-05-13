@@ -1962,8 +1962,8 @@ class ImportConversion(object):
 
         def convert_datetime(val, **_):
             try:
-                tval = time.strptime(val, self.date_time_format)
-                return timegm(tval) * 1e3  # scale seconds to millis for the raw value
+                dtval = datetime.datetime.strptime(val, self.date_time_format)
+                return dtval.timestamp() * 1000
             except ValueError:
                 pass  # if it's not in the default format we try CQL formats
 
@@ -1993,7 +1993,7 @@ class ImportConversion(object):
                 offset = -time.timezone
 
             # scale seconds to millis for the raw value
-            return ((timegm(tval) + offset) * 1e3) + milliseconds
+            return ((timegm(tval) + offset) * 1000) + milliseconds
 
         def convert_date(v, **_):
             return Date(v)
