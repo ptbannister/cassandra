@@ -480,12 +480,11 @@ def format_value_text(val, encoding, colormap, quote=False, **_):
     escapedval = val.replace('\\', '\\\\')
     if quote:
         escapedval = escapedval.replace("'", "''")
-    # TODO: revisit this
+    escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval) # TODO: revisit this
     bval = escapedval
-    #escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval)
-    #bval = escapedval.encode(encoding, 'backslashreplace')
+    #bval = escapedval.encode(encoding, 'backslashreplace') # TODO: revisit this too
     if quote:
-        bval = "'%s'" % bval
+        bval = "'{}'".format(bval)
     # TODO: revisit this
     #return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval.decode(encoding)))
     return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval))

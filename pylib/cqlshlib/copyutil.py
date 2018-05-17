@@ -1705,9 +1705,6 @@ class ExportProcess(ChildProcess):
             self.report_error(e, token_range)
 
     def format_value(self, val, cqltype):
-        """
-        blobs format as bytes - this is causing problems right now!
-        """
         if val is None or val == EMPTY:
             return format_value_default(self.nullval, colormap=NO_COLOR_MAP)
 
@@ -1787,6 +1784,22 @@ class ExportProcess(ChildProcess):
 class ParseError(Exception):
     """ We failed to parse an import record """
     pass
+
+
+class ImmutableDict(frozenset):
+    """
+    Immutable dictionary implementation to represent map types.
+    We need to pass BoundStatement.bind() a dict() because it calls iteritems(),
+    except we can't create a dict with another dict as the key, hence we use a class
+    that adds iteritems to a frozen set of tuples (which is how dict are normally made
+    immutable in python).
+    Must be declared in the top level of the module to be available for pickling.
+    """
+    iteritems = frozenset.__iter__
+
+    def items(self):
+        for k, v in self.iteritems():
+            yield k, v
 
 
 class ImportConversion(object):
@@ -2012,14 +2025,8 @@ class ImportConversion(object):
 
         def convert_map(val, ct=cql_type):
             """
-            We need to pass to BoundStatement.bind() a dict() because it calls iteritems(),
-            except we can't create a dict with another dict as the key, hence we use a class
-            that adds iteritems to a frozen set of tuples (which is how dict are normally made
-            immutable in python).
+            See ImmutableDict above for a discussion of why a special object is needed here.
             """
-            class ImmutableDict(frozenset):
-                iteritems = frozenset.__iter__
-
             return ImmutableDict(frozenset((convert_mandatory(ct.subtypes[0], v[0]), convert(ct.subtypes[1], v[1]))
                                  for v in [split('{%s}' % vv, sep=':') for vv in split(val)]))
 
@@ -2155,9 +2162,10 @@ class ImportConversion(object):
             for i in partition_key_indexes:
                 val = serialize(i, row[i])
                 length = len(val)
+                #pk_values.append(str(struct.pack(">H%dsB" % length, length, val, 0))) # TODO: revisit wrapping in str()
                 pk_values.append(struct.pack(">H%dsB" % length, length, val, 0))
-            #return b"".join(pk_values)
-            return "".join(pk_values) # TODO: revisit
+            return b"".join(pk_values)
+            #return "".join(pk_values) # TODO: revisit
 
         if len(partition_key_indexes) == 1:
             return serialize_row_single
