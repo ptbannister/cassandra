@@ -1402,7 +1402,7 @@ class Shell(cmd.Cmd):
         """
         Used when columnizing identifiers that may contain unicode
         """
-        names = [n.encode('utf-8') for n in name_list]
+        names = [n for n in name_list]
         if quote:
             names = protect_names(names)
         cmd.Cmd.columnize(self, names)
