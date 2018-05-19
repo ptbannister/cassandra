@@ -52,6 +52,7 @@ class CqlshCompletionCase(BaseTestCase):
     def setUp(self):
         env = os.environ
         env['COLUMNS'] = '100000'
+        env['LC_CTYPE'] = 'C.UTF-8'
         #self.cqlsh_runner = testrun_cqlsh(cqlver=None, env={'COLUMNS': '100000'})
         self.cqlsh_runner = testrun_cqlsh(cqlver=None, env=env)
         self.cqlsh = self.cqlsh_runner.__enter__()
@@ -403,7 +404,7 @@ class TestCqlshCompletion(CqlshCompletionCase):
                                      'twenty_rows_composite_table',
                                      'utf8_with_special_chars',
                                      'system_traces.', 'songs',
-                                     '"' + self.cqlsh.keyspace + '".'],
+                                     self.cqlsh.keyspace + '.'],
                             other_choices_ok=True)
 
         self.trycompletions('DELETE FROM ',
@@ -418,7 +419,7 @@ class TestCqlshCompletion(CqlshCompletionCase):
                                      'system_traces.', 'songs',
                                      'system_auth.', 'system_distributed.',
                                      'system_schema.', 'system_traces.',
-                                     '"' + self.cqlsh.keyspace + '".'],
+                                     self.cqlsh.keyspace + '.'],
                             other_choices_ok=True)
         self.trycompletions('DELETE FROM twenty_rows_composite_table ',
                             choices=['USING', 'WHERE'])
@@ -540,27 +541,27 @@ class TestCqlshCompletion(CqlshCompletionCase):
         self.trycompletions('DROP K', immediate='EYSPACE ')
         quoted_keyspace = '"' + self.cqlsh.keyspace + '"'
         self.trycompletions('DROP KEYSPACE ',
-                            choices=['IF', quoted_keyspace])
+                            choices=['IF', self.cqlsh.keyspace])
 
         self.trycompletions('DROP KEYSPACE ' + quoted_keyspace,
                             choices=[';'])
 
         self.trycompletions('DROP KEYSPACE I',
-                            immediate='F EXISTS ' + quoted_keyspace + ';')
+                            immediate='F EXISTS ' + self.cqlsh.keyspace + ' ;')
 
     def create_columnfamily_table_template(self, name):
         """Parameterized test for CREATE COLUMNFAMILY and CREATE TABLE. Since
         they're synonyms, they should have the same completion behavior, so this
         test avoids duplication between tests for the two statements."""
         prefix = 'CREATE ' + name + ' '
-        #quoted_keyspace = '"' + self.cqlsh.keyspace + '"'
-        quoted_keyspace = self.cqlsh.keyspace
+        quoted_keyspace = '"' + self.cqlsh.keyspace + '"'
+        #quoted_keyspace = self.cqlsh.keyspace
         self.trycompletions(prefix + '',
-                            choices=['IF', quoted_keyspace, '<new_table_name>'])
+                            choices=['IF', self.cqlsh.keyspace, '<new_table_name>'])
         self.trycompletions(prefix + 'IF ',
                             immediate='NOT EXISTS ')
         self.trycompletions(prefix + 'IF NOT EXISTS ',
-                            choices=['<new_table_name>', quoted_keyspace])
+                            choices=['<new_table_name>', self.cqlsh.keyspace])
         self.trycompletions(prefix + 'IF NOT EXISTS new_table ',
                             immediate='( ')
 
@@ -706,7 +707,7 @@ class TestCqlshCompletion(CqlshCompletionCase):
                                      'utf8_with_special_chars',
                                      'system_traces.', 'songs',
                                      'system_distributed.',
-                                     '"' + self.cqlsh.keyspace + '".'],
+                                     self.cqlsh.keyspace + '.'],
                             other_choices_ok=True)
 
         self.trycompletions('DESC TYPE ',
@@ -729,7 +730,7 @@ class TestCqlshCompletion(CqlshCompletionCase):
                                      'fbestsong',
                                      'fmax',
                                      'fmin',
-                                     '"' + self.cqlsh.keyspace + '".'],
+                                     self.cqlsh.keyspace + '.'],
                             other_choices_ok=True)
 
         self.trycompletions('DESC AGGREGATE ',
@@ -739,7 +740,7 @@ class TestCqlshCompletion(CqlshCompletionCase):
                                      'system_distributed.',
                                      'aggmin',
                                      'aggmax',
-                                     '"' + self.cqlsh.keyspace + '".'],
+                                     self.cqlsh.keyspace + '.'],
                             other_choices_ok=True)
 
         # Unfortunately these commented tests will not work. This is due to the keyspace name containing quotes;
