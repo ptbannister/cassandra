@@ -54,7 +54,7 @@ class TestCqlshOutput(BaseTestCase):
         pass
 
     def assertNoHasColors(self, text, msg=None):
-        self.assertNotRegexpMatches(text, ansi_seq, msg='ANSI CSI sequence found in %r' % text)
+        self.assertNotRegex(text, ansi_seq, msg='ANSI CSI sequence found in %r' % text)
 
     def assertHasColors(self, text, msg=None):
         self.assertRegex(text, ansi_seq, msg=msg)
@@ -135,7 +135,7 @@ class TestCqlshOutput(BaseTestCase):
             output = output.splitlines()
             for line in output:
                 self.assertNoHasColors(line)
-                self.assertNotRegexpMatches(line, r'^cqlsh\S*>')
+                self.assertNotRegex(line, r'^cqlsh\S*>')
             self.assertEqual(len(output), 6,
                              msg='output: %r' % '\n'.join(output))
             self.assertEqual(output[0], '')
