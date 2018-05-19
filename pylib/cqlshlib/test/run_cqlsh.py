@@ -311,4 +311,4 @@ def call_cqlsh(**kwargs):
     c = CqlshRunner(**kwargs)
     output, _ = c.proc.communicate(proginput)
     result = c.close()
-    return output, result
+    return output.decode(), result

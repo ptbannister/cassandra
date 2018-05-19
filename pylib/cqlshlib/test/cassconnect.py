@@ -138,4 +138,6 @@ def testrun_cqlsh(keyspace=DEFAULTVAL, **kwargs):
 def testcall_cqlsh(keyspace=None, **kwargs):
     if keyspace is None:
         keyspace = get_keyspace()
+    if ('input' in kwargs.keys() and isinstance(kwargs['input'], str)):
+        kwargs['input'] = kwargs['input'].encode('utf-8')
     return call_cqlsh(keyspace=keyspace, **kwargs)
