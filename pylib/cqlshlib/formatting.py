@@ -378,7 +378,7 @@ def strftime(time_format, seconds, microseconds=0, timezone=None):
         return '%d' % (seconds * 1000.0)
 
 
-microseconds_regex = re.compile("(.*)(?:\.(\d{1,6}))(.*)")
+microseconds_regex = re.compile(r"(.*)(?:\.(\d{1,6}))(.*)")
 
 
 def round_microseconds(val):
@@ -480,13 +480,11 @@ def format_value_text(val, encoding, colormap, quote=False, **_):
     escapedval = val.replace('\\', '\\\\')
     if quote:
         escapedval = escapedval.replace("'", "''")
-    escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval) # TODO: revisit this
+    escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval)
     bval = escapedval
-    #bval = escapedval.encode(encoding, 'backslashreplace') # TODO: revisit this too
+#   bval = escapedval.encode(encoding, 'backslashreplace')  # TODO: revisit this too
     if quote:
         bval = "'{}'".format(bval)
-    # TODO: revisit this
-    #return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval.decode(encoding)))
     return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval))
 
 

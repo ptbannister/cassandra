@@ -33,7 +33,7 @@ class SaferScanner(re.Scanner):
             gid = s.opengroup()
             p.append(re.sre_parse.SubPattern(s, [
                 (SUBPATTERN, (gid, self.subpat(phrase, flags))),
-                ]))
+            ]))
             s.closegroup(gid, p[-1])
         p = re.sre_parse.SubPattern(s, [(BRANCH, (None, p))])
         self.p = p

@@ -306,8 +306,6 @@ class CopyTask(object):
         """
         Convert all option values to valid string literals unless they are path names
         """
-        #return dict([(k, v.decode('string_escape') if k not in ['errfile', 'ratefile'] else v)
-        #             for k, v, in opts.items()])
         return dict([(k, v if k not in ['errfile', 'ratefile'] else v)
                      for k, v, in opts.items()])
 
@@ -559,7 +557,7 @@ class ExportWriter(object):
         if self.header:
             writer = csv.writer(self.current_dest.output, **self.options.dialect)
             writer.writerow(self.columns)
-        
+
         return True
 
     def close(self):
@@ -580,7 +578,6 @@ class ExportWriter(object):
             return CsvDest(output=sys.stdout, close=False)
         else:
             try:
-                #ret = CsvDest(output=open(source_name, 'wb'), close=True)
                 ret = CsvDest(output=open(source_name, 'w'), close=True)
                 self.num_files += 1
                 return ret
@@ -1969,9 +1966,9 @@ class ImportConversion(object):
             return ret
 
         # this should match all possible CQL and CQLSH datetime formats
-        p = re.compile("(\d{4})\-(\d{2})\-(\d{2})\s?(?:'T')?" +  # YYYY-MM-DD[( |'T')]
-                       "(?:(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,6}))?))?" +  # [HH:MM[:SS[.NNNNNN]]]
-                       "(?:([+\-])(\d{2}):?(\d{2}))?")  # [(+|-)HH[:]MM]]
+        p = re.compile(r"(\d{4})\-(\d{2})\-(\d{2})\s?(?:'T')?"  # YYYY-MM-DD[( |'T')]
+                       + r"(?:(\d{2}):(\d{2})(?::(\d{2})(?:\.(\d{1,6}))?))?"  # [HH:MM[:SS[.NNNNNN]]]
+                       + r"(?:([+\-])(\d{2}):?(\d{2}))?")  # [(+|-)HH[:]MM]]
 
         def convert_datetime(val, **_):
             try:
@@ -2162,10 +2159,8 @@ class ImportConversion(object):
             for i in partition_key_indexes:
                 val = serialize(i, row[i])
                 length = len(val)
-                #pk_values.append(str(struct.pack(">H%dsB" % length, length, val, 0))) # TODO: revisit wrapping in str()
                 pk_values.append(struct.pack(">H%dsB" % length, length, val, 0))
             return b"".join(pk_values)
-            #return "".join(pk_values) # TODO: revisit
 
         if len(partition_key_indexes) == 1:
             return serialize_row_single
@@ -2285,7 +2280,6 @@ class ImportProcess(ChildProcess):
         ChildProcess.__init__(self, params=params, target=self.run)
 
         self.skip_columns = params['skip_columns']
-        #self.valid_columns = [c.encode(self.encoding) for c in params['valid_columns']]
         self.valid_columns = [c for c in params['valid_columns']]
         self.skip_column_indexes = [i for i, c in enumerate(self.columns) if c in self.skip_columns]
 
@@ -2582,7 +2576,7 @@ class ImportProcess(ChildProcess):
                     yield filter_replicas(replicas[ring_pos]), make_batch(chunk['id'], rows[i:i + max_batch_size])
             else:
                 # select only the first valid replica to guarantee more overlap or none at all
-                rows_by_replica[tuple(filter_replicas(replicas[ring_pos])[:1])].extend(rows) # TODO: revisit tuple wrapper
+                rows_by_replica[tuple(filter_replicas(replicas[ring_pos])[:1])].extend(rows)  # TODO: revisit tuple wrapper
 
         # Now send the batches by replica
         for replicas, rows in rows_by_replica.items():

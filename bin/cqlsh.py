@@ -30,7 +30,6 @@ exit 1
 ":"""
 
 
-
 import cmd
 import codecs
 import configparser
@@ -216,8 +215,8 @@ parser.add_option('-k', '--keyspace', help='Authenticate to the given keyspace.'
 parser.add_option("-f", "--file", help="Execute commands from FILE, then exit")
 parser.add_option('--debug', action='store_true',
                   help='Show additional debugging information')
-parser.add_option("--encoding", help="Specify a non-default encoding for output." +
-                  " (Default: %s)" % (UTF8,))
+parser.add_option("--encoding", help="Specify a non-default encoding for output."
+                  + " (Default: %s)" % (UTF8,))
 parser.add_option("--cqlshrc", help="Specify an alternative cqlshrc file location.")
 parser.add_option('--cqlversion', default=None,
                   help='Specify a particular CQL version, '
@@ -258,11 +257,11 @@ if not os.path.exists(HISTORY_DIR):
 OLD_CONFIG_FILE = os.path.expanduser(os.path.join('~', '.cqlshrc'))
 if os.path.exists(OLD_CONFIG_FILE):
     if os.path.exists(CONFIG_FILE):
-        print('\nWarning: cqlshrc config files were found at both the old location (%s) and \
-                the new location (%s), the old config file will not be migrated to the new \
-                location, and the new location will be used for now.  You should manually \
-                consolidate the config files at the new location and remove the old file.' \
-                % (OLD_CONFIG_FILE, CONFIG_FILE))
+        print('\nWarning: cqlshrc config files were found at both the old location ({0})'
+              + ' and the new location ({1}), the old config file will not be migrated to the new'
+              + ' location, and the new location will be used for now.  You should manually'
+              + ' consolidate the config files at the new location and remove the old file.'
+              .format(OLD_CONFIG_FILE, CONFIG_FILE))
     else:
         os.rename(OLD_CONFIG_FILE, CONFIG_FILE)
 OLD_HISTORY = os.path.expanduser(os.path.join('~', '.cqlsh_history'))
@@ -435,8 +434,6 @@ class Shell(cmd.Cmd):
     stop = False
     last_hist = None
     shunted_query_out = None
-    # TODO: remove this comment
-    #Shell.shunted_query_out = None
     use_paging = True
 
     default_page_size = 100
@@ -604,10 +601,10 @@ class Shell(cmd.Cmd):
         self.show_version()
 
     def show_host(self):
-        print("Connected to %s at %s:%d." % \
-            (self.applycolor(self.get_cluster_name(), BLUE),
-              self.hostname,
-              self.port))
+        print("Connected to {0} at {1}:{2}."
+              .format(self.applycolor(self.get_cluster_name(), BLUE),
+                      self.hostname,
+                      self.port))
 
     def show_version(self):
         vers = self.connection_versions.copy()
@@ -1041,7 +1038,7 @@ class Shell(cmd.Cmd):
     def perform_simple_statement(self, statement):
         if not statement:
             return False, None
-        
+
         future = self.session.execute_async(statement, trace=self.tracing_enabled)
         result = None
         try:
@@ -2127,10 +2124,10 @@ class SwitchCommand(object):
         switch = parsed.get_binding('switch')
         if switch is None:
             if state:
-                print("%s is currently enabled. Use %s OFF to disable" \
+                print("%s is currently enabled. Use %s OFF to disable"
                       % (self.description, self.command))
             else:
-                print("%s is currently disabled. Use %s ON to enable." \
+                print("%s is currently disabled. Use %s ON to enable."
                       % (self.description, self.command))
             return state
 
@@ -2389,8 +2386,10 @@ def main(options, hostname, port):
             # we silently ignore and fallback to UTC unless a custom timestamp format (which likely
             # does contain a TZ part) was specified
             if options.time_format != DEFAULT_TIMESTAMP_FORMAT:
-                sys.stderr.write("Warning: custom timestamp format specified in cqlshrc, but local timezone could not be detected.\n" +
-                                 "Either install Python 'tzlocal' module for auto-detection or specify client timezone in your cqlshrc.\n\n")
+                sys.stderr.write("Warning: custom timestamp format specified in cqlshrc, "
+                                 + "but local timezone could not be detected.\n"
+                                 + "Either install Python 'tzlocal' module for auto-detection "
+                                 + "or specify client timezone in your cqlshrc.\n\n")
 
     try:
         shell = Shell(hostname,
