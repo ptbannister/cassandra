@@ -18,6 +18,7 @@
 # and $CQL_TEST_PORT to the associated port.
 
 
+import locale
 import os
 import re
 from test.basecase import BaseTestCase, cqlsh, cqlshlog
@@ -52,8 +53,8 @@ class CqlshCompletionCase(BaseTestCase):
     def setUp(self):
         env = os.environ
         env['COLUMNS'] = '100000'
-        env['LC_CTYPE'] = 'C.UTF-8'
-        #self.cqlsh_runner = testrun_cqlsh(cqlver=None, env={'COLUMNS': '100000'})
+        if (locale.getpreferredencoding() != 'UTF-8'):
+             env['LC_CTYPE'] = 'en_US.utf8'
         self.cqlsh_runner = testrun_cqlsh(cqlver=None, env=env)
         self.cqlsh = self.cqlsh_runner.__enter__()
 
