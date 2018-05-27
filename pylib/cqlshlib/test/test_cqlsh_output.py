@@ -48,8 +48,11 @@ class TestCqlshOutput(BaseTestCase):
     def setUp(self):
         env = {}
         env['COLUMNS'] = '100000'
+        # carry forward or override locale LC_CTYPE for UTF-8 encoding
         if (locale.getpreferredencoding() != 'UTF-8'):
             env['LC_CTYPE'] = 'en_US.utf8'
+        else:
+            env['LC_CTYPE'] = os.environ.get('LC_CTYPE', 'en_US.utf8')
         if ('PATH' in os.environ.keys()):
             env['PATH'] = os.environ['PATH']
         self.default_env = env
