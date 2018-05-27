@@ -18,6 +18,7 @@
 # and $CQL_TEST_PORT to the associated port.
 
 
+import locale
 import os
 import re
 import sys
@@ -45,9 +46,12 @@ class TestCqlshOutput(BaseTestCase):
         remove_db()
 
     def setUp(self):
-        env = os.environ
+        env = {}
         env['COLUMNS'] = '100000'
-        env['LC_CTYPE'] = 'C.UTF-8'
+        if (locale.getpreferredencoding() != 'UTF-8'):
+            env['LC_CTYPE'] = 'en_US.utf8'
+        if ('PATH' in os.environ.keys()):
+            env['PATH'] = os.environ['PATH']
         self.default_env = env
 
     def tearDown(self):
@@ -150,6 +154,7 @@ class TestCqlshOutput(BaseTestCase):
         for termname in ('xterm', 'unknown-garbage'):
             cqlshlog.debug('TERM=%r' % termname)
             env['TERMNAME'] = termname
+            env['TERM'] = termname
             with testrun_cqlsh(tty=True, env=env) as c:
                 c.send('select * from has_all_types;\n')
                 self.assertHasColors(c.read_to_next_prompt())
@@ -556,7 +561,6 @@ class TestCqlshOutput(BaseTestCase):
             nnnnnnnn
             """, ),
         ))
-        #))
 
     def test_prompt(self):
         with testrun_cqlsh(tty=True, keyspace=None, env=self.default_env) as c:
