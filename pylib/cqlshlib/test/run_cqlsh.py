@@ -215,7 +215,8 @@ class ProcRunner:
             while True:
                 val = self.read(blksize, ptty_timeout)
                 for replace_target in replace:
-                    val = val.replace(replace_target, '')
+                    if (replace_target != ''):
+                        val = val.replace(replace_target, '')
                 cqlshlog.debug("read %r from subproc" % (val,))
                 if val == '':
                     raise EOFError("'until' pattern %r not found" % (until.pattern,))
@@ -272,6 +273,9 @@ class CqlshRunner(ProcRunner):
         env.setdefault('TERM', 'xterm')
         env.setdefault('CQLSH_NO_BUNDLED', os.environ.get('CQLSH_NO_BUNDLED', ''))
         env.setdefault('PYTHONPATH', os.environ.get('PYTHONPATH', ''))
+        coverage = False
+        if ('CQLSH_COVERAGE' in env.keys()):
+            coverage = True
         args = tuple(args) + (host, str(port))
         if cqlver is not None:
             args += ('--cqlversion', str(cqlver))
@@ -282,6 +286,8 @@ class CqlshRunner(ProcRunner):
             args += ('--encoding', 'utf-8')
             if win_force_colors:
                 args += ('--color',)
+        if coverage:
+            args += ('--coverage',)
         self.keyspace = keyspace
         ProcRunner.__init__(self, path, tty=tty, args=args, env=env, **kwargs)
         self.prompt = prompt

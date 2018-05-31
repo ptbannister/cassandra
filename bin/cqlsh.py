@@ -215,6 +215,8 @@ parser.add_option('-k', '--keyspace', help='Authenticate to the given keyspace.'
 parser.add_option("-f", "--file", help="Execute commands from FILE, then exit")
 parser.add_option('--debug', action='store_true',
                   help='Show additional debugging information')
+parser.add_option('--coverage', action='store_true',
+                  help='Collect coverage data')
 parser.add_option("--encoding", help="Specify a non-default encoding for output."
                   + " (Default: %s)" % (UTF8,))
 parser.add_option("--cqlshrc", help="Specify an alternative cqlshrc file location.")
@@ -278,7 +280,6 @@ CQL_ERRORS = (
 )
 
 debug_completion = bool(os.environ.get('CQLSH_DEBUG_COMPLETION', '') == 'YES')
-
 
 class NoKeyspaceError(Exception):
     pass
@@ -431,6 +432,7 @@ class Shell(cmd.Cmd):
     keyspace_continue_prompt = "{0}    ... "
     show_line_nums = False
     debug = False
+    coverage = False
     stop = False
     last_hist = None
     shunted_query_out = None
@@ -835,11 +837,17 @@ class Shell(cmd.Cmd):
                     readline.parse_and_bind("bind ^R em-inc-search-prev")
                 else:
                     readline.parse_and_bind(self.completekey + ": complete")
+        if self.coverage:
+            import coverage
+            self.cov = coverage.Coverage()
+            self.cov.start()
         try:
             yield
         finally:
             if readline is not None:
                 readline.set_completer(old_completer)
+            if self.coverage:
+                self.stop_coverage()
 
     def get_input_line(self, prompt=''):
         if self.tty:
@@ -2111,6 +2119,12 @@ class Shell(cmd.Cmd):
             text = '%s:%d:%s' % (self.stdin.name, self.lineno, text)
         self.writeresult(text, color, newline=newline, out=sys.stderr)
 
+    def stop_coverage(self):
+        if self.coverage and self.cov is not None:
+            self.cov.stop()
+            self.cov.save()
+            self.cov = None
+
 
 class SwitchCommand(object):
     command = None
@@ -2239,6 +2253,11 @@ def read_options(cmdlineargs, environment):
     optvalues.timezone = option_with_default(configs.get, 'ui', 'timezone', None)
 
     optvalues.debug = False
+
+    optvalues.coverage = False
+    if 'CQLSH_COVERAGE' in environment.keys():
+        optvalues.coverage = True
+
     optvalues.file = None
     optvalues.ssl = option_with_default(configs.getboolean, 'connection', 'ssl', DEFAULT_SSL)
     optvalues.encoding = option_with_default(configs.get, 'ui', 'encoding', UTF8)
@@ -2425,9 +2444,17 @@ def main(options, hostname, port):
         sys.exit('Unsupported CQL version: %s' % (e,))
     if options.debug:
         shell.debug = True
+    if options.coverage:
+        shell.coverage = True
+        import signal
+        def handle_sighup():
+            shell.stop_coverage()
+            shell.do_exit()
+        signal.signal(signal.SIGHUP, handle_sighup)
 
     shell.cmdloop()
     save_history()
+
     batch_mode = options.file or options.execute
     if batch_mode and shell.statement_error:
         sys.exit(2)
