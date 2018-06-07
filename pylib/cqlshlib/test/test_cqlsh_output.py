@@ -17,6 +17,7 @@
 # to configure behavior, define $CQL_TEST_HOST to the destination address
 # and $CQL_TEST_PORT to the associated port.
 
+from __future__ import unicode_literals
 
 import locale
 import os
@@ -55,6 +56,7 @@ class TestCqlshOutput(BaseTestCase):
             env['LC_CTYPE'] = os.environ.get('LC_CTYPE', 'en_US.utf8')
         if ('PATH' in os.environ.keys()):
             env['PATH'] = os.environ['PATH']
+        env['CQLSH_COVERAGE'] = 'true'
         self.default_env = env
 
     def tearDown(self):
@@ -97,6 +99,7 @@ class TestCqlshOutput(BaseTestCase):
             for query, expected in queries_and_expected_outputs:
                 cqlshlog.debug('Testing %r' % (query,))
                 output = c.cmd_and_response(query).lstrip("\r\n")
+                print("query output: {}".format(output))
                 c_output = ColoredText(output)
                 pairs = at_a_time(dedent(expected).split('\n'), 2)
                 outlines = c_output.splitlines()

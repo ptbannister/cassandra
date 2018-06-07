@@ -15,10 +15,10 @@
 # limitations under the License.
 
 
-
 import contextlib
-import tempfile
+import io
 import os.path
+import tempfile
 
 from test.basecase import cql, cqlsh, cqlshlog, TEST_HOST, TEST_PORT, rundir, policy, quote_name
 from test.run_cqlsh import run_cqlsh, call_cqlsh
@@ -68,7 +68,7 @@ def execute_cql_commands(cursor, source, logprefix='INIT: '):
         cursor.execute(cql)
 
 def execute_cql_file(cursor, fname):
-    with open(fname, "r", encoding="utf-8") as f:
+    with io.open(fname, "r", encoding="utf-8") as f:
         return execute_cql_commands(cursor, f.read())
 
 def create_db():

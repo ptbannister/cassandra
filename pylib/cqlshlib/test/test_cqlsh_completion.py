@@ -57,6 +57,7 @@ class CqlshCompletionCase(BaseTestCase):
              env['LC_CTYPE'] = 'en_US.utf8'
         if ('PATH' in os.environ.keys()):
             env['PATH'] = os.environ['PATH']
+        env['CQLSH_COVERAGE'] = 'true'
         self.cqlsh_runner = testrun_cqlsh(cqlver=None, env=env)
         self.cqlsh = self.cqlsh_runner.__enter__()
 

@@ -19,6 +19,7 @@
 
 """:"
 # bash code here; finds a suitable python interpreter and execs this file.
+# this implementation of cqlsh is compatible with both Python 3 and Python 2.7.
 # prefer unqualified "python" if suitable:
 python -c 'import sys; sys.exit(not (0x020700b0 < sys.hexversion))' 2>/dev/null \
     && exec python "$0" "$@"
@@ -29,23 +30,31 @@ echo "No appropriate python interpreter found." >&2
 exit 1
 ":"""
 
+from __future__ import division, unicode_literals
 
 import cmd
 import codecs
-import configparser
 import csv
 import getpass
 import optparse
 import os
 import platform
+import six
 import sys
 import traceback
 import warnings
 import webbrowser
-from io import StringIO
 from contextlib import contextmanager
 from glob import glob
 from uuid import UUID
+
+try:
+    # Python 3 modules
+    import configparser
+    from io import StringIO
+except ImportError:
+    import ConfigParser as configparser 
+    import StringIO
 
 if sys.version_info[0] != 3 and (sys.version_info[0] == 2 and sys.version_info[1] != 7):
     sys.exit("\nCQL Shell supports only Python 3 or Python 2.7\n")
@@ -794,6 +803,15 @@ class Shell(cmd.Cmd):
                 for table in list(self.get_keyspace_meta(ksname).tables.values())
                 for trigger in list(table.triggers.values())]
 
+    def _input(self, prompt):
+        """Call Python 3 input() or Python 2 raw_input()"""
+        lastcmd = None
+        if six.PY3:
+            lastcmd = input(prompt)
+        elif six.PY2:
+            lastcmd = raw_input(prompt).decode(self.encoding)
+        return lastcmd 
+
     def reset_statement(self):
         self.reset_prompt()
         self.statement.truncate(0)
@@ -851,7 +869,7 @@ class Shell(cmd.Cmd):
 
     def get_input_line(self, prompt=''):
         if self.tty:
-            self.lastcmd = input(prompt)
+            self.lastcmd = self._input(prompt)
             line = self.lastcmd + '\n'
         else:
             self.lastcmd = self.stdin.readline()
@@ -859,6 +877,8 @@ class Shell(cmd.Cmd):
             if not len(line):
                 raise EOFError
         self.lineno += 1
+        if six.PY2 and isinstance(line, str):
+            line = unicode(line, encoding='utf-8')
         return line
 
     def use_stdin_reader(self, until='', prompt=''):
@@ -895,7 +915,7 @@ class Shell(cmd.Cmd):
                     self.printerr(cqlerr.message)
                 except KeyboardInterrupt:
                     self.reset_statement()
-                    print()
+                    print('')
 
     def onecmd(self, statementtext):
         """
@@ -935,7 +955,7 @@ class Shell(cmd.Cmd):
 
     def handle_eof(self):
         if self.tty:
-            print()
+            print('')
         statement = self.statement.getvalue()
         if statement.strip():
             if not self.onecmd(statement):
@@ -1278,58 +1298,58 @@ class Shell(cmd.Cmd):
         out.write("\n")
 
     def describe_keyspaces(self):
-        print()
+        print('')
         cmd.Cmd.columnize(self, protect_names(self.get_keyspace_names()))
-        print()
+        print('')
 
     def describe_keyspace(self, ksname):
-        print()
+        print('')
         self.print_recreate_keyspace(self.get_keyspace_meta(ksname), sys.stdout)
-        print()
+        print('')
 
     def describe_columnfamily(self, ksname, cfname):
         if ksname is None:
             ksname = self.current_keyspace
         if ksname is None:
             raise NoKeyspaceError("No keyspace specified and no current keyspace")
-        print()
+        print('')
         self.print_recreate_columnfamily(ksname, cfname, sys.stdout)
-        print()
+        print('')
 
     def describe_index(self, ksname, idxname):
-        print()
+        print('')
         self.print_recreate_index(ksname, idxname, sys.stdout)
-        print()
+        print('')
 
     def describe_materialized_view(self, ksname, viewname):
         if ksname is None:
             ksname = self.current_keyspace
         if ksname is None:
             raise NoKeyspaceError("No keyspace specified and no current keyspace")
-        print()
+        print('')
         self.print_recreate_materialized_view(ksname, viewname, sys.stdout)
-        print()
+        print('')
 
     def describe_object(self, ks, name):
-        print()
+        print('')
         self.print_recreate_object(ks, name, sys.stdout)
-        print()
+        print('')
 
     def describe_columnfamilies(self, ksname):
-        print()
+        print('')
         if ksname is None:
             for k in self.get_keyspaces():
                 name = protect_name(k.name)
                 print('Keyspace %s' % (name,))
                 print('---------%s' % ('-' * len(name)))
                 cmd.Cmd.columnize(self, protect_names(self.get_columnfamily_names(k.name)))
-                print()
+                print('')
         else:
             cmd.Cmd.columnize(self, protect_names(self.get_columnfamily_names(ksname)))
-            print()
+            print('')
 
     def describe_functions(self, ksname):
-        print()
+        print('')
         if ksname is None:
             for ksmeta in self.get_keyspaces():
                 name = protect_name(ksmeta.name)
@@ -1345,16 +1365,16 @@ class Shell(cmd.Cmd):
             ksname = self.current_keyspace
         if ksname is None:
             raise NoKeyspaceError("No keyspace specified and no current keyspace")
-        print()
+        print('')
         ksmeta = self.get_keyspace_meta(ksname)
         functions = [f for f in list(ksmeta.functions.values()) if f.name == functionname]
         if len(functions) == 0:
             raise FunctionNotFound("User defined function %r not found" % functionname)
         print("\n\n".join(func.export_as_string() for func in functions))
-        print()
+        print('')
 
     def describe_aggregates(self, ksname):
-        print()
+        print('')
         if ksname is None:
             for ksmeta in self.get_keyspaces():
                 name = protect_name(ksmeta.name)
@@ -1370,16 +1390,16 @@ class Shell(cmd.Cmd):
             ksname = self.current_keyspace
         if ksname is None:
             raise NoKeyspaceError("No keyspace specified and no current keyspace")
-        print()
+        print('')
         ksmeta = self.get_keyspace_meta(ksname)
         aggregates = [f for f in list(ksmeta.aggregates.values()) if f.name == aggregatename]
         if len(aggregates) == 0:
             raise FunctionNotFound("User defined aggregate %r not found" % aggregatename)
         print("\n\n".join(aggr.export_as_string() for aggr in aggregates))
-        print()
+        print('')
 
     def describe_usertypes(self, ksname):
-        print()
+        print('')
         if ksname is None:
             for ksmeta in self.get_keyspaces():
                 name = protect_name(ksmeta.name)
@@ -1395,7 +1415,7 @@ class Shell(cmd.Cmd):
             ksname = self.current_keyspace
         if ksname is None:
             raise NoKeyspaceError("No keyspace specified and no current keyspace")
-        print()
+        print('')
         ksmeta = self.get_keyspace_meta(ksname)
         try:
             usertype = ksmeta.user_types[typename]
@@ -1411,7 +1431,7 @@ class Shell(cmd.Cmd):
         if quote:
             names = protect_names(names)
         cmd.Cmd.columnize(self, names)
-        print()
+        print('')
 
     def describe_cluster(self):
         print('\nCluster: %s' % self.get_cluster_name())
@@ -1425,14 +1445,14 @@ class Shell(cmd.Cmd):
             ring = self.get_ring(self.current_keyspace)
             for entry in list(ring.items()):
                 print(' %39s  [%s]' % (str(entry[0].value), ', '.join([host.address for host in entry[1]])))
-            print()
+            print('')
 
     def describe_schema(self, include_system=False):
-        print()
+        print('')
         for k in self.get_keyspaces():
             if include_system or k.name not in cql3handling.SYSTEM_KEYSPACES:
                 self.print_recreate_keyspace(k, sys.stdout)
-                print()
+                print('')
 
     def do_describe(self, parsed):
         """
@@ -2102,10 +2122,13 @@ class Shell(cmd.Cmd):
             out = self.query_out
 
         # convert Exceptions, etc to text
-        if not isinstance(text, str):
-            text = str(text)
+#        if not isinstance(text, str): TODO: make sure this is correct
+        if not isinstance(text, six.text_type):
+            text = "{}".format(text)
 
         to_write = self.applycolor(text, color) + ('\n' if newline else '')
+        if six.PY2:
+            to_write = to_write.encode('utf8')
         out.write(to_write)
 
     def flush_output(self):

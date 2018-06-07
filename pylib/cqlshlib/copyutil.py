@@ -16,7 +16,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import configparser
 import csv
 import datetime
 import json
@@ -36,12 +35,20 @@ from bisect import bisect_right
 from calendar import timegm
 from collections import defaultdict, namedtuple
 from decimal import Decimal
-from queue import Queue
 from random import randint
 from io import StringIO
 from select import select
 from uuid import UUID
 from .util import profile_on, profile_off
+
+try:
+    # Python 3 imports
+    import configparser
+    from queue import Queue
+except ImportError:
+    # Python 2 imports
+    import ConfigParser as configparser
+    from Queue import Queue
 
 from cassandra import OperationTimedOut
 from cassandra.cluster import Cluster, DefaultConnection

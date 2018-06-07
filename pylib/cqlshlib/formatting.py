@@ -239,7 +239,7 @@ def formatter_for(typname):
 
 @formatter_for('bytearray')
 def format_value_blob(val, colormap, **_):
-    bval = '0x' + str(binascii.hexlify(val))[2:-1]
+    bval = '0x' + str(binascii.hexlify(val))[2:-1] if six.PY3 else '0x' + binascii.hexlify(val)
     return colorme(bval, colormap, 'blob')
 
 

@@ -54,6 +54,20 @@ class BaseTestCase(unittest.TestCase):
     def assertNicelyFormattedTableData(self, line, msg=None):
         return self.assertRegex(line, r'^ .* \| ', msg=msg)
 
+    def assertRegex(self, text, regex, msg=None):
+        """Call assertRegexpMatches() if in Python 2"""
+        if hasattr(unittest.TestCase, 'assertRegex'):
+            return super().assertRegex(text, regex, msg)
+        else:
+            return self.assertRegexpMatches(text, regex, msg)
+
+    def assertNotRegex(self, text, regex, msg=None):
+        """Call assertNotRegexpMatches() if in Python 2"""
+        if hasattr(unittest.TestCase, 'assertNotRegex'):
+            return super().assertNotRegex(text, regex, msg)
+        else:
+            return self.assertNotRegexpMatches(text, regex, msg)
+
 def dedent(s):
     lines = [ln.rstrip() for ln in s.splitlines()]
     if lines[0] == '':
