@@ -14,6 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import unicode_literals
+
 import binascii
 import calendar
 import datetime
@@ -239,7 +241,7 @@ def formatter_for(typname):
 
 @formatter_for('bytearray')
 def format_value_blob(val, colormap, **_):
-    bval = '0x' + str(binascii.hexlify(val))[2:-1] if six.PY3 else '0x' + binascii.hexlify(val)
+    bval = '0x' + str(binascii.hexlify(val))[2:-1] if six.PY3 else unicode('0x' + binascii.hexlify(val), encoding='utf-8')
     return colorme(bval, colormap, 'blob')
 
 
@@ -248,7 +250,7 @@ formatter_for('blob')(format_value_blob)
 
 
 def format_python_formatted_type(val, colormap, color, quote=False):
-    bval = str(val)
+    bval = str(val) if six.PY3 else unicode(str(val), encoding='utf8')
     if quote:
         bval = "'%s'" % bval
     return colorme(bval, colormap, color)
@@ -318,6 +320,8 @@ formatter_for('double')(format_floating_point_type)
 def format_integer_type(val, colormap, thousands_sep=None, **_):
     # base-10 only for now; support others?
     bval = format_integer_with_thousands_sep(val, thousands_sep) if thousands_sep else str(val)
+    if six.PY2 and not isinstance(bval, six.text_type):
+        bval = six.text_type(bval, encoding='utf8')
     return colorme(bval, colormap, 'int')
 
 

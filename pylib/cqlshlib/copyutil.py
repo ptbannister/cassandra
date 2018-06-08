@@ -25,6 +25,7 @@ import os
 import platform
 import random
 import re
+import six
 import struct
 import sys
 import threading
@@ -36,7 +37,7 @@ from calendar import timegm
 from collections import defaultdict, namedtuple
 from decimal import Decimal
 from random import randint
-from io import StringIO
+from io import BytesIO, StringIO
 from select import select
 from uuid import UUID
 from .util import profile_on, profile_off
@@ -1695,7 +1696,7 @@ class ExportProcess(ChildProcess):
             return  # no rows in this range
 
         try:
-            output = StringIO()
+            output = StringIO() if six.PY3 else BytesIO()
             writer = csv.writer(output, **self.options.dialect)
 
             for row in rows:
@@ -1720,11 +1721,17 @@ class ExportProcess(ChildProcess):
         if not hasattr(cqltype, 'precision'):
             cqltype.precision = self.double_precision if cqltype.type_name == 'double' else self.float_precision
 
-        return formatter(val, cqltype=cqltype,
-                         encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
-                         float_precision=cqltype.precision, nullval=self.nullval, quote=False,
-                         decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
-                         boolean_styles=self.boolean_styles)
+        formatted = formatter(val, cqltype=cqltype,
+                               encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
+                               float_precision=cqltype.precision, nullval=self.nullval, quote=False,
+                               decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
+                               boolean_styles=self.boolean_styles)
+        return formatted if six.PY3 else formatted.encode('utf8')
+#        return formatter(val, cqltype=cqltype,
+#                         encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
+#                         float_precision=cqltype.precision, nullval=self.nullval, quote=False,
+#                         decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
+#                         boolean_styles=self.boolean_styles)
 
     def close(self):
         ChildProcess.close(self)
