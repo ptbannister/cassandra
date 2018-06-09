@@ -328,9 +328,9 @@ class CopyTask(object):
         opts = self.clean_options(self.maybe_read_config_file(opts, direction))
 
         dialect_options = dict()
-        dialect_options['quotechar'] = opts.pop('quote', '"')
-        dialect_options['escapechar'] = opts.pop('escape', '\\')
-        dialect_options['delimiter'] = opts.pop('delimiter', ',')
+        dialect_options['quotechar'] = opts.pop('quote', '"').encode('utf-8') if six.PY2 else opts.pop('quote', '"')
+        dialect_options['escapechar'] = opts.pop('escape', '\\').encode('utf-8') if six.PY2 else opts.pop('escape', '\\')
+        dialect_options['delimiter'] = opts.pop('delimiter', ',').encode('utf-8') if six.PY2 else opts.pop('delimiter', ',')
         if dialect_options['quotechar'] == dialect_options['escapechar']:
             dialect_options['doublequote'] = True
             del dialect_options['escapechar']
@@ -1986,8 +1986,14 @@ class ImportConversion(object):
 
         def convert_datetime(val, **_):
             try:
-                dtval = datetime.datetime.strptime(val, self.date_time_format)
-                return dtval.timestamp() * 1000
+                if six.PY2:
+                    # Python 2 implementation
+                    tval = time.strptime(val, self.date_time_format)
+                    return timegm(tval) * 1e3  # scale seconds to millis for the raw value
+                else:
+                    # Python 3 implementation
+                    dtval = datetime.datetime.strptime(val, self.date_time_format)
+                    return dtval.timestamp() * 1000
             except ValueError:
                 pass  # if it's not in the default format we try CQL formats
 

@@ -1704,7 +1704,7 @@ class Shell(cmd.Cmd):
         if fname is not None:
             fname = self.cql_unprotect_value(fname)
 
-        copyoptnames = list(map(str.lower, parsed.get_binding('optnames', ())))
+        copyoptnames = list(map(six.text_type.lower, parsed.get_binding('optnames', ())))
         copyoptvals = list(map(self.cql_unprotect_value, parsed.get_binding('optvals', ())))
         opts = dict(list(zip(copyoptnames, copyoptvals)))
 

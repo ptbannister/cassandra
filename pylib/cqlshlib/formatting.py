@@ -241,7 +241,10 @@ def formatter_for(typname):
 
 @formatter_for('bytearray')
 def format_value_blob(val, colormap, **_):
-    bval = '0x' + str(binascii.hexlify(val))[2:-1] if six.PY3 else unicode('0x' + binascii.hexlify(val), encoding='utf-8')
+    bval = '0x' + binascii.hexlify(val) if six.PY2 else '0x' + str(binascii.hexlify(val))[2:-1]
+    if six.PY2 and not isinstance(bval, six.text_type):
+        # make sure value is unicode in Python 2
+        bval = unicode(bval, encoding='utf-8')
     return colorme(bval, colormap, 'blob')
 
 
@@ -321,7 +324,7 @@ def format_integer_type(val, colormap, thousands_sep=None, **_):
     # base-10 only for now; support others?
     bval = format_integer_with_thousands_sep(val, thousands_sep) if thousands_sep else str(val)
     if six.PY2 and not isinstance(bval, six.text_type):
-        bval = six.text_type(bval, encoding='utf8')
+        bval = unicode(bval, encoding='utf8')
     return colorme(bval, colormap, 'int')
 
 
