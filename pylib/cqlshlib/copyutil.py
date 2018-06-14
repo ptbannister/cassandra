@@ -16,6 +16,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from __future__ import unicode_literals
 import csv
 import datetime
 import json
@@ -1722,10 +1723,10 @@ class ExportProcess(ChildProcess):
             cqltype.precision = self.double_precision if cqltype.type_name == 'double' else self.float_precision
 
         formatted = formatter(val, cqltype=cqltype,
-                               encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
-                               float_precision=cqltype.precision, nullval=self.nullval, quote=False,
-                               decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
-                               boolean_styles=self.boolean_styles)
+                              encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
+                              float_precision=cqltype.precision, nullval=self.nullval, quote=False,
+                              decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
+                              boolean_styles=self.boolean_styles)
         return formatted if six.PY3 else formatted.encode('utf8')
 #        return formatter(val, cqltype=cqltype,
 #                         encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
@@ -2459,10 +2460,15 @@ class ImportProcess(ChildProcess):
             set_clause = []
             for i, value in enumerate(row):
                 if i in conv.primary_key_indexes:
-                    where_clause.append("%s=%s" % (self.valid_columns[i], value))
+                    if six.PY2:
+                        where_clause.append("{}={}".format(unicode(self.valid_columns[i], encoding='utf-8'), unicode(value, encoding='utf-8')))
+                    else:
+                        where_clause.append("{}={}".format(self.valid_columns[i], value))
                 else:
-                    set_clause.append("%s=%s+%s" % (self.valid_columns[i], self.valid_columns[i], value))
-
+                    if six.PY2:
+                        set_clause.append("{}={}+{}".format(unicode(self.valid_columns[i], encoding='utf-8'), unicode(self.valid_columns[i], encoding='utf-8'), value))
+                    else:
+                        set_clause.append("{}={}+{}".format(self.valid_columns[i], self.valid_columns[i], value))
             full_query_text = query % (','.join(set_clause), ' AND '.join(where_clause))
             statement.add(full_query_text)
         return statement
