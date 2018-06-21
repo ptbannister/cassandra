@@ -339,7 +339,7 @@ class CopyTask(object):
             dialect_options['doublequote'] = False
 
         copy_options = dict()
-        copy_options['nullval'] = opts.pop('null', '')
+        copy_options['nullval'] = opts.pop('null', '').encode('utf-8') if six.PY2 else opts.pop('null', '')
         copy_options['header'] = bool(opts.pop('header', '').lower() == 'true')
         copy_options['encoding'] = opts.pop('encoding', 'utf8')
         copy_options['maxrequests'] = int(opts.pop('maxrequests', 6))
@@ -1903,7 +1903,7 @@ class ImportConversion(object):
             return bytearray.fromhex(v[2:])
 
         def convert_text(v, **_):
-            return v
+            return v.decode(encoding='utf-8') if six.PY2 else v
 
         def convert_uuid(v, **_):
             return UUID(v)
