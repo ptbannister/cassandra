@@ -1872,7 +1872,8 @@ class ImportConversion(object):
         select_query = 'SELECT * FROM %s.%s WHERE %s' % (protect_name(parent.ks),
                                                          protect_name(parent.table),
                                                          where_clause)
-        return parent.session.prepare(select_query)
+        #return parent.session.prepare(select_query)
+        return parent.session.prepare(ImportConversion.text_wrapper(select_query))
 
     @staticmethod
     def text_wrapper(text):
@@ -1913,14 +1914,14 @@ class ImportConversion(object):
             return UUID(v)
 
         def convert_bool(v, **_):
-            return True if v.lower() == self.boolean_styles[0].lower() else False
+            return True if v.lower() == ImportConversion.text_wrapper(self.boolean_styles[0]).lower() else False
 
         def get_convert_integer_fcn(adapter=int):
             """
             Return a slow and a fast integer conversion function depending on self.thousands_sep
             """
             if self.thousands_sep:
-                return lambda v, ct=cql_type: adapter(v.replace(self.thousands_sep, ''))
+                return lambda v, ct=cql_type: adapter(v.replace(self.thousands_sep, ImportConversion.text_wrapper('')))
             else:
                 return lambda v, ct=cql_type: adapter(v)
 
@@ -1928,12 +1929,14 @@ class ImportConversion(object):
             """
             Return a slow and a fast decimal conversion function depending on self.thousands_sep and self.decimal_sep
             """
+            empty_str = ImportConversion.text_wrapper('')
+            dot_str = ImportConversion.text_wrapper('.')
             if self.thousands_sep and self.decimal_sep:
-                return lambda v, ct=cql_type: adapter(v.replace(self.thousands_sep, '').replace(self.decimal_sep, '.'))
+                return lambda v, ct=cql_type: adapter(v.replace(self.thousands_sep, empty_str).replace(self.decimal_sep, dot_str))
             elif self.thousands_sep:
-                return lambda v, ct=cql_type: adapter(v.replace(self.thousands_sep, ''))
+                return lambda v, ct=cql_type: adapter(v.replace(self.thousands_sep, empty_str))
             elif self.decimal_sep:
-                return lambda v, ct=cql_type: adapter(v.replace(self.decimal_sep, '.'))
+                return lambda v, ct=cql_type: adapter(v.replace(self.decimal_sep, dot_str))
             else:
                 return lambda v, ct=cql_type: adapter(v)
 
@@ -2189,7 +2192,7 @@ class ImportConversion(object):
                 val = serialize(i, row[i])
                 length = len(val)
                 pk_values.append(struct.pack(">H%dsB" % length, length, val, 0))
-            return ImportConversion.text_wrapper("".join(pk_values))
+            return ImportConversion.text_wrapper(b"".join(pk_values))
 
         if len(partition_key_indexes) == 1:
             return serialize_row_single
@@ -2469,17 +2472,19 @@ class ImportProcess(ChildProcess):
             set_clause = []
             for i, value in enumerate(row):
                 if i in conv.primary_key_indexes:
-                    if six.PY2:
-                        where_clause.append("{}={}".format(unicode(self.valid_columns[i], encoding='utf-8'), unicode(value, encoding='utf-8')))
-                    else:
-                        where_clause.append("{}={}".format(self.valid_columns[i], value))
+                    where_clause.append("{}={}".format(self.valid_columns[i], value))
+                    #if six.PY2:
+                    #    where_clause.append("{}={}".format(unicode(self.valid_columns[i], encoding='utf-8'), unicode(value, encoding='utf-8')))
+                    #else:
+                    #    where_clause.append("{}={}".format(self.valid_columns[i], value))
                 else:
-                    if six.PY2:
-                        set_clause.append("{}={}+{}".format(unicode(self.valid_columns[i], encoding='utf-8'), unicode(self.valid_columns[i], encoding='utf-8'), value))
-                    else:
-                        set_clause.append("{}={}+{}".format(self.valid_columns[i], self.valid_columns[i], value))
+                    set_clause.append("{}={}+{}".format(self.valid_columns[i], self.valid_columns[i], value))
+                    #if six.PY2:
+                    #    set_clause.append("{}={}+{}".format(unicode(self.valid_columns[i], encoding='utf-8'), unicode(self.valid_columns[i], encoding='utf-8'), value))
+                    #else:
+                    #    set_clause.append("{}={}+{}".format(self.valid_columns[i], self.valid_columns[i], value))
             full_query_text = query % (','.join(set_clause), ' AND '.join(where_clause))
-            statement.add(full_query_text)
+            statement.add(self.text_wrapper(full_query_text))
         return statement
 
     def make_prepared_batch_statement(self, query, _, batch, replicas):
