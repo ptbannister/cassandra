@@ -361,7 +361,7 @@ class CopyTask(object):
         copy_options['consistencylevel'] = shell.consistency_level
         copy_options['decimalsep'] = opts.pop('decimalsep', '.')
         copy_options['thousandssep'] = opts.pop('thousandssep', '')
-        copy_options['boolstyle'] = [s.strip() for s in opts.pop('boolstyle', 'True, False').split(',')]
+        copy_options['boolstyle'] = [s.strip().encode(encoding='utf-8') if six.PY2 else s.strip() for s in opts.pop('boolstyle', 'True, False').split(',')]
         copy_options['numprocesses'] = int(opts.pop('numprocesses', self.get_num_processes(16)))
         copy_options['begintoken'] = opts.pop('begintoken', '')
         copy_options['endtoken'] = opts.pop('endtoken', '')
