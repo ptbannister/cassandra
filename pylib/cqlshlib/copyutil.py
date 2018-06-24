@@ -1875,6 +1875,10 @@ class ImportConversion(object):
         return parent.session.prepare(select_query)
 
     @staticmethod
+    def text_wrapper(text):
+        return text.encode(encoding='utf-8') if (six.PY2 and isinstance(text, six.text_type)) else text
+
+    @staticmethod
     def unprotect(v):
         if v is not None:
             return CqlRuleSet.dequote_value(v)
@@ -1903,7 +1907,7 @@ class ImportConversion(object):
             return bytearray.fromhex(v[2:])
 
         def convert_text(v, **_):
-            return v.decode(encoding='utf-8') if six.PY2 else v
+            return ImportConversion.text_wrapper(v)
 
         def convert_uuid(v, **_):
             return UUID(v)
@@ -2045,8 +2049,10 @@ class ImportConversion(object):
             """
             See ImmutableDict above for a discussion of why a special object is needed here.
             """
+            split_format_str = ImportConversion.text_wrapper('{%s}')
+            sep = ImportConversion.text_wrapper(':')
             return ImmutableDict(frozenset((convert_mandatory(ct.subtypes[0], v[0]), convert(ct.subtypes[1], v[1]))
-                                 for v in [split('{%s}' % vv, sep=':') for vv in split(val)]))
+                                 for v in [split(split_format_str % vv, sep=sep) for vv in split(val)]))
 
         def convert_user_type(val, ct=cql_type):
             """
@@ -2057,7 +2063,9 @@ class ImportConversion(object):
             Also note that it is possible that the subfield names in the csv are in the
             wrong order, so we must sort them according to ct.fieldnames, see CASSANDRA-12959.
             """
-            vals = [v for v in [split('{%s}' % vv, sep=':') for vv in split(val)]]
+            split_format_str = ImportConversion.text_wrapper('{%s}')
+            sep = ImportConversion.text_wrapper(':')
+            vals = [v for v in [split(split_format_str % vv, sep=sep) for vv in split(val)]]
             dict_vals = dict((unprotect(v[0]), v[1]) for v in vals)
             sorted_converted_vals = [(n, convert(t, dict_vals[n]) if n in dict_vals else self.get_null_val())
                                      for n, t in zip(ct.fieldnames, ct.subtypes)]
@@ -2114,7 +2122,7 @@ class ImportConversion(object):
         or "NULL" otherwise. Note that for counters we never use prepared statements, so we
         only check is_counter when use_prepared_statements is false.
         """
-        return None if self.use_prepared_statements else ("0" if self.is_counter else "NULL")
+        return None if self.use_prepared_statements else (ImportConversion.text_wrapper("0") if self.is_counter else ImportConversion.text_wrapper("NULL"))
 
     def convert_row(self, row):
         """
@@ -2181,7 +2189,7 @@ class ImportConversion(object):
                 val = serialize(i, row[i])
                 length = len(val)
                 pk_values.append(struct.pack(">H%dsB" % length, length, val, 0))
-            return b"".join(pk_values)
+            return ImportConversion.text_wrapper("".join(pk_values))
 
         if len(partition_key_indexes) == 1:
             return serialize_row_single
@@ -2370,6 +2378,7 @@ class ImportProcess(ChildProcess):
     def make_params(self):
         metadata = self.session.cluster.metadata
         table_meta = metadata.keyspaces[self.ks].tables[self.table]
+        text_wrapper = self.text_wrapper
 
         prepared_statement = None
         if self.is_counter(table_meta):
@@ -2396,7 +2405,7 @@ class ImportProcess(ChildProcess):
 
         conv = ImportConversion(self, table_meta, prepared_statement)
         tm = TokenMap(self.ks, self.hostname, self.local_dc, self.session)
-        return query, conv, tm, make_statement
+        return text_wrapper(query), conv, tm, make_statement
 
     def inner_run(self, query, conv, tm, make_statement):
         """
@@ -2494,7 +2503,8 @@ class ImportProcess(ChildProcess):
         statement = BatchStatement(batch_type=BatchType.UNLOGGED, consistency_level=self.consistency_level)
         statement.replicas = replicas
         statement.keyspace = self.ks
-        statement._statements_and_parameters = [(False, query % (','.join(r),), ()) for r in batch['rows']]
+        field_sep = b',' if six.PY2 else ','
+        statement._statements_and_parameters = [(False, query % (field_sep.join(r),), ()) for r in batch['rows']]
         return statement
 
     def convert_rows(self, conv, chunk):
@@ -2636,6 +2646,9 @@ class ImportProcess(ChildProcess):
         chunk['imported'] += len(rows)
         if chunk['imported'] == chunk['num_rows_sent']:
             self.outmsg.send(ImportProcessResult(chunk['num_rows_sent']))
+    
+    def text_wrapper(self, text):
+        return text.encode(encoding='utf-8') if (six.PY2 and isinstance(text, six.text_type)) else text
 
 
 class RateMeter(object):
