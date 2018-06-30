@@ -26,6 +26,7 @@ import os
 import platform
 import random
 import re
+import signal
 import six
 import struct
 import sys
@@ -504,7 +505,8 @@ class CopyTask(object):
                     cql_version=shell.conn.cql_version,
                     config_file=self.config_file,
                     protocol_version=self.protocol_version,
-                    debug=shell.debug
+                    debug=shell.debug,
+                    coverage=shell.coverage
                     )
 
     def validate_columns(self):
@@ -1435,6 +1437,11 @@ class ChildProcess(mp.Process):
             self.test_failures = json.loads(os.environ.get('CQLSH_COPY_TEST_FAILURES', ''))
         else:
             self.test_failures = None
+        # attributes for coverage
+        self.coverage = params['coverage']
+        self.coverage_collection = None
+        self.sigterm_handler = None
+        self.sighup_handler = None
 
     def on_fork(self):
         """
@@ -1451,6 +1458,31 @@ class ChildProcess(mp.Process):
         printdebugmsg("Closing queues...")
         self.inmsg.close()
         self.outmsg.close()
+
+    def start_coverage(self):
+        import coverage
+        self.coverage_collection = coverage.Coverage()
+        self.coverage_collection.start()
+
+        # save current handlers for SIGTERM and SIGHUP
+        self.sigterm_handler = signal.getsignal(signal.SIGTERM)
+        self.sighup_handler = signal.getsignal(signal.SIGTERM)
+
+        def handle_sigterm():
+            self.stop_coverage()
+            self.close()
+            self.terminate()
+
+        # set custom handler for SIGHUP and SIGTERM
+        # needed to make sure coverage data is saved
+        signal.signal(signal.SIGTERM, handle_sigterm)
+        signal.signal(signal.SIGHUP, handle_sigterm)
+
+    def stop_coverage(self):
+        self.coverage_collection.stop()
+        self.coverage_collection.save()
+        signal.signal(signal.SIGTERM, self.sigterm_handler)
+        signal.signal(signal.SIGHUP, self.sighup_handler)
 
 
 class ExpBackoffRetryPolicy(RetryPolicy):
@@ -1557,9 +1589,13 @@ class ExportProcess(ChildProcess):
         self.options = options
 
     def run(self):
+        if self.coverage:
+            self.start_coverage()
         try:
             self.inner_run()
         finally:
+            if self.coverage:
+                self.stop_coverage()
             self.close()
 
     def inner_run(self):
@@ -1701,6 +1737,7 @@ class ExportProcess(ChildProcess):
             writer = csv.writer(output, **self.options.dialect)
 
             for row in rows:
+                print("cqlshlib.copyutil.ExportProcess.write_rows_to_csv(): writing row")
                 writer.writerow(list(map(self.format_value, row, cql_types)))
 
             data = (output.getvalue(), len(rows))
@@ -1728,11 +1765,6 @@ class ExportProcess(ChildProcess):
                               decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
                               boolean_styles=self.boolean_styles)
         return formatted if six.PY3 else formatted.encode('utf8')
-#        return formatter(val, cqltype=cqltype,
-#                         encoding=self.encoding, colormap=NO_COLOR_MAP, date_time_format=self.date_time_format,
-#                         float_precision=cqltype.precision, nullval=self.nullval, quote=False,
-#                         decimal_sep=self.decimal_sep, thousands_sep=self.thousands_sep,
-#                         boolean_styles=self.boolean_styles)
 
     def close(self):
         ChildProcess.close(self)
@@ -2355,6 +2387,9 @@ class ImportProcess(ChildProcess):
         return self._session
 
     def run(self):
+        if self.coverage:
+            self.start_coverage()
+
         try:
             pr = profile_on() if PROFILE_ON else None
 
@@ -2368,6 +2403,8 @@ class ImportProcess(ChildProcess):
             self.report_error(exc)
 
         finally:
+            if self.coverage:
+                self.stop_coverage()
             self.close()
 
     def close(self):

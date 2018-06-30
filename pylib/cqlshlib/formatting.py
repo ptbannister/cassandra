@@ -359,7 +359,7 @@ def format_value_timestamp(val, colormap, date_time_format, quote=False, **_):
         if date_time_format.milliseconds_only:
             bval = round_microseconds(bval)
     else:
-        bval = str(val)
+        bval = unicode(val, encoding='utf-8') if six.PY2 and not isinstance(val, six.text_type) else str(val)
 
     if quote:
         bval = "'%s'" % bval
