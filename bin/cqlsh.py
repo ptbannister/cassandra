@@ -413,24 +413,24 @@ def insert_driver_hooks():
     # Return cassandra.cqltypes.EMPTY instead of None for empty values
     cassandra.cqltypes.CassandraType.support_empty_values = True
 
-
-class FrozenType(cassandra.cqltypes._ParameterizedType):
-    """
-    Needed until the bundled python driver adds FrozenType.
-    """
-    typename = "frozen"
-    num_subtypes = 1
-
-    @classmethod
-    def deserialize_safe(cls, byts, protocol_version):
-        subtype, = cls.subtypes
-        return subtype.from_binary(byts)
-
-    @classmethod
-    def serialize_safe(cls, val, protocol_version):
-        subtype, = cls.subtypes
-        return subtype.to_binary(val, protocol_version)
-
+#
+#class FrozenType(cassandra.cqltypes._ParameterizedType):
+#    """
+#    Needed until the bundled python driver adds FrozenType.
+#    """
+#    typename = "frozen"
+#    num_subtypes = 1
+#
+#    @classmethod
+#    def deserialize_safe(cls, byts, protocol_version):
+#        subtype, = cls.subtypes
+#        return subtype.from_binary(byts)
+#
+#    @classmethod
+#    def serialize_safe(cls, val, protocol_version):
+#        subtype, = cls.subtypes
+#        return subtype.to_binary(val, protocol_version)
+#
 
 class Shell(cmd.Cmd):
     custom_prompt = os.getenv('CQLSH_PROMPT', '')
@@ -2202,7 +2202,6 @@ class Shell(cmd.Cmd):
             out = self.query_out
 
         # convert Exceptions, etc to text
-#        if not isinstance(text, str): TODO: make sure this is correct
         if not isinstance(text, six.text_type):
             text = "{}".format(text)
 

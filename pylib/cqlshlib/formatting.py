@@ -208,6 +208,9 @@ class CqlType(object):
 
 def format_value_default(val, colormap, **_):
     val = str(val)
+    if six.PY2 and not isinstance(val, six.text_type):
+        # make sure value is unicode in Python 2
+        val = unicode(val, encoding='utf-8')
     escapedval = val.replace('\\', '\\\\')
     bval = controlchars_re.sub(_show_control_chars, escapedval)
     return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap)
@@ -253,7 +256,7 @@ formatter_for('blob')(format_value_blob)
 
 
 def format_python_formatted_type(val, colormap, color, quote=False):
-    bval = str(val) if six.PY3 else unicode(str(val), encoding='utf8')
+    bval = unicode(str(val), encoding='utf8') if six.PY2 else str(val)
     if quote:
         bval = "'%s'" % bval
     return colorme(bval, colormap, color)
@@ -489,7 +492,6 @@ def format_value_text(val, encoding, colormap, quote=False, **_):
         escapedval = escapedval.replace("'", "''")
     escapedval = unicode_controlchars_re.sub(_show_control_chars, escapedval)
     bval = escapedval
-#   bval = escapedval.encode(encoding, 'backslashreplace')  # TODO: revisit this too
     if quote:
         bval = "'{}'".format(bval)
     return bval if colormap is NO_COLOR_MAP else color_text(bval, colormap, wcwidth.wcswidth(bval))
