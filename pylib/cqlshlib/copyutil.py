@@ -506,7 +506,8 @@ class CopyTask(object):
                     config_file=self.config_file,
                     protocol_version=self.protocol_version,
                     debug=shell.debug,
-                    coverage=shell.coverage
+                    coverage=shell.coverage,
+                    coveragerc_path=shell.coveragerc_path
                     )
 
     def validate_columns(self):
@@ -1439,6 +1440,7 @@ class ChildProcess(mp.Process):
             self.test_failures = None
         # attributes for coverage
         self.coverage = params['coverage']
+        self.coveragerc_path = params['coveragerc_path']
         self.coverage_collection = None
         self.sigterm_handler = None
         self.sighup_handler = None
@@ -1461,7 +1463,7 @@ class ChildProcess(mp.Process):
 
     def start_coverage(self):
         import coverage
-        self.coverage_collection = coverage.Coverage()
+        self.coverage_collection = coverage.Coverage(config_file=self.coveragerc_path)
         self.coverage_collection.start()
 
         # save current handlers for SIGTERM and SIGHUP

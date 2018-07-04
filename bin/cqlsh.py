@@ -931,9 +931,21 @@ class Shell(cmd.Cmd):
                 else:
                     readline.parse_and_bind(self.completekey + ": complete")
         if self.coverage:
-            import coverage
-            self.cov = coverage.Coverage()
-            self.cov.start()
+            # check for coveragerc file, write it if missing
+            if os.path.exists(HISTORY_DIR):
+                self.coveragerc_path = os.path.join(HISTORY_DIR, '.coveragerc')
+                covdata_path = os.path.join(HISTORY_DIR, '.coverage')
+                if not os.path.isfile(self.coveragerc_path):
+                    with open(self.coveragerc_path, 'w') as f:
+                        f.writelines(["[run]\n", 
+                                      "concurrency = multiprocessing\n",
+                                      "data_file = {}\n".format(covdata_path),
+                                      "parallel = true\n"]
+                                     )
+                # start coverage
+                import coverage
+                self.cov = coverage.Coverage(config_file=self.coveragerc_path)
+                self.cov.start()
         try:
             yield
         finally:
