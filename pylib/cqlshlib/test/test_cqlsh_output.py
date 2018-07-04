@@ -99,7 +99,6 @@ class TestCqlshOutput(BaseTestCase):
             for query, expected in queries_and_expected_outputs:
                 cqlshlog.debug('Testing %r' % (query,))
                 output = c.cmd_and_response(query).lstrip("\r\n")
-                print("query output: {}".format(output))
                 c_output = ColoredText(output)
                 pairs = at_a_time(dedent(expected).split('\n'), 2)
                 outlines = c_output.splitlines()
