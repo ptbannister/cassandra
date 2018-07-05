@@ -470,7 +470,8 @@ class Shell(cmd.Cmd):
                  request_timeout=DEFAULT_REQUEST_TIMEOUT_SECONDS,
                  protocol_version=None,
                  connect_timeout=DEFAULT_CONNECT_TIMEOUT_SECONDS,
-                 allow_server_port_discovery=False):
+                 allow_server_port_discovery=False,
+                 is_subshell=False):
         cmd.Cmd.__init__(self, completekey=completekey)
         self.hostname = hostname
         self.port = port
@@ -560,6 +561,7 @@ class Shell(cmd.Cmd):
         self.empty_lines = 0
         self.statement_error = False
         self.single_statement = single_statement
+        self.is_subshell = is_subshell
 
     @property
     def is_using_utf8(self):
@@ -930,7 +932,8 @@ class Shell(cmd.Cmd):
                     readline.parse_and_bind("bind ^R em-inc-search-prev")
                 else:
                     readline.parse_and_bind(self.completekey + ": complete")
-        if self.coverage:
+        # start coverage collection if requested, unless in subshell
+        if self.coverage == True and not self.is_subshell:
             # check for coveragerc file, write it if missing
             if os.path.exists(HISTORY_DIR):
                 self.coveragerc_path = os.path.join(HISTORY_DIR, '.coveragerc')
@@ -951,7 +954,7 @@ class Shell(cmd.Cmd):
         finally:
             if readline is not None:
                 readline.set_completer(old_completer)
-            if self.coverage:
+            if self.coverage and not self.is_subshell:
                 self.stop_coverage()
 
     def get_input_line(self, prompt=''):
@@ -1888,7 +1891,12 @@ class Shell(cmd.Cmd):
                          max_trace_wait=self.max_trace_wait, ssl=self.ssl,
                          request_timeout=self.session.default_timeout,
                          connect_timeout=self.conn.connect_timeout,
-                         allow_server_port_discovery=self.allow_server_port_discovery)
+                         allow_server_port_discovery=self.allow_server_port_discovery,
+                         is_subshell=True)
+        # duplicate coverage related settings in subshell
+        if self.coverage:
+            subshell.coverage = True
+            subshell.coveragerc_path = self.coveragerc_path
         subshell.cmdloop()
         f.close()
 

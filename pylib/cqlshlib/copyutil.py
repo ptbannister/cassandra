@@ -1293,7 +1293,7 @@ class FeedingProcess(mp.Process):
     A process that reads from import sources and sends chunks to worker processes.
     """
     def __init__(self, inpipe, outpipe, worker_pipes, fname, options, parent_cluster):
-        mp.Process.__init__(self, target=self.run)
+        super(FeedingProcess, self).__init__(target=self.run)
         self.inpipe = inpipe
         self.outpipe = outpipe
         self.worker_pipes = worker_pipes
@@ -1405,7 +1405,7 @@ class ChildProcess(mp.Process):
     """
 
     def __init__(self, params, target):
-        mp.Process.__init__(self, target=target)
+        super(ChildProcess, self).__init__(target=target)
         self.inpipe = params['inpipe']
         self.outpipe = params['outpipe']
         self.inmsg = None  # must be initialized after fork on Windows
