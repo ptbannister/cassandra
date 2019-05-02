@@ -148,6 +148,8 @@ for lib in third_parties:
     if lib_zip:
         sys.path.insert(0, lib_zip)
 
+import six
+
 warnings.filterwarnings("ignore", r".*blist.*")
 try:
     import cassandra
