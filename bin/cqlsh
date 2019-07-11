@@ -17,16 +17,29 @@
 
 # shell script to find a suitable Python interpreter and run cqlsh.py
 
-# test whether a version string matches one of the supported versions for cqlsh
-is_supported_version() {
-	version=$1
-	if [ "$version" = "3.6" -o "$version" = "2.7" ]
-	then
-		echo "supported"
-	else
-		echo "unsupported"
-	fi
-}
+# parse arguments
+PARAMS=""
+while [ $# -gt 0 ]; do
+	case "$1" in
+		--python)
+			if [ $# -lt 2 ]; then
+				echo "You must specify a python interpreter path with the --python option"
+				exit 1
+			fi
+			USER_SPECIFIED_PYTHON="$2"
+			shift
+			shift
+			;;
+		--)
+			shift
+			break
+			;;
+		*)
+			PARAMS="$PARAMS $1"
+			shift
+			;;
+	esac
+done
 
 # get a version string for a Python interpreter
 get_python_version() {
@@ -35,18 +48,52 @@ get_python_version() {
 	echo "$version"
 }
 
-# try unqualified python first, then python3, then python2.7
-for interpreter in python python3 python2.7; do
+# test whether a version string matches one of the supported versions for cqlsh
+is_supported_version() {
+	version=$1
+	if [ "$version" = "3.6" -o "$version" = "2.7" ]; then
+		echo "supported"
+	else
+		echo "unsupported"
+	fi
+}
+
+run_if_supported_version() {
+	interpreter="$1"
+	params="$2"
 	version=$(get_python_version $interpreter)
-	if [ -n "$version" ]
-	then
-		if [ "$(is_supported_version $version)" = "supported" ]
-		then
-			exec $interpreter "`$interpreter -c "import os; print(os.path.dirname(os.path.realpath('$0')))"`/cqlsh.py" "$@"
+	if [ -n "$version" ]; then
+		if [ "$(is_supported_version $version)" = "supported" ]; then
+			exec $interpreter "`$interpreter -c "import os; print(os.path.dirname(os.path.realpath('$0')))"`/cqlsh.py" $params
 			exit
 		fi
 	fi
-done
+}
+
+
+if [ "$USER_SPECIFIED_PYTHON" != "" ]; then
+	# run a user specified Python interpreter
+	run_if_supported_version "$USER_SPECIFIED_PYTHON" "$PARAMS"
+else
+	# try unqualified python first, then python3, then python2.7
+	for interpreter in python python3 python2.7; do
+		run_if_supported_version "$interpreter" "$PARAMS"
+	done
+fi
+
+
+# try unqualified python first, then python3, then python2.7
+#for interpreter in python python3 python2.7; do
+#	version=$(get_python_version $interpreter)
+#	if [ -n "$version" ]; then
+#		if [ "$(is_supported_version $version)" = "supported" ]
+#		then
+#			exec $interpreter "`$interpreter -c "import os; print(os.path.dirname(os.path.realpath('$0')))"`/cqlsh.py" "$@"
+#			exit
+#		fi
+#	fi
+#done
+
 
 echo "No appropriate Python interpreter found." >&2
 exit 1
