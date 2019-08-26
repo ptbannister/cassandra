@@ -773,6 +773,9 @@ class ExportTask(CopyTask):
             #  For the last ring interval we query the same replicas that hold the first token in the ring
             if previous is not None and (not end_token or previous < end_token):
                 ranges[(previous, end_token)] = first_range_data
+            elif previous is None and (not end_token or previous < end_token):
+                previous = begin_token if begin_token else min_token
+                ranges[(previous, end_token)] = first_range_data
 
         if not ranges:
             shell.printerr('Found no ranges to query, check begin and end tokens: %s - %s' % (begin_token, end_token))
