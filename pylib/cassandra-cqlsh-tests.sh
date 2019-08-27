@@ -56,7 +56,7 @@ set -e # enable immediate exit if venv setup fails
 virtualenv --python=$PYTHON_VERSION --no-site-packages venv
 source venv/bin/activate
 
-pip install -r ${CASSANDRA_DIR}/pylib/requirements.txt
+pip install --no-cache-dir -r ${CASSANDRA_DIR}/pylib/requirements.txt
 pip freeze
 
 if [ "$cython" = "yes" ]; then
