@@ -23,9 +23,13 @@ import unittest
 from cassandra.metadata import MIN_LONG, Murmur3Token, TokenMap
 from cassandra.policies import SimpleConvictionPolicy
 from cassandra.pool import Host
-from unittest.mock import Mock
 
 from cqlshlib.copyutil import ExportTask
+
+try:
+    from unittest.mock import Mock
+except ImportError:
+    from mock import Mock
 
 
 class CopyTaskTest(unittest.TestCase):
